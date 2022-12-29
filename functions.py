@@ -118,31 +118,47 @@ def exclude():
 def total_stat():
     """Formation general statistics about users by countries"""
 
+    dealers = []
+    adjusters = []
+    list_of_countries = []
     for country in countries:
+        list_of_countries.append(country)
+        data = df_users[data["Страна"] == country & data["Тип пользователя"] == "Дилер"]
+        dealers.append(len(data["ID"]))
+        data = df_users[data["Страна"] == country & data["Тип пользователя"] == "Монтажник"]
+        adjusters.append(len(data["ID"]))
+
+    total_stat_df = pd.DataFrame([[list_of_countries], [dealers], [adjusters]],
+                                 [i for i in range(len(list_of_countries))],
+                                 ["Страна", "Дилеров", "Монтажников"])
+
+    total_stat_df.to_excel(f"total stats about users for {today}.xlsx")
 
 
 
-    total_amount_of_dealers = 0
-    for country in countries:
-        total_amount_of_dealers += amount_users_by_type(country, 'Дилер')
 
-    total_amount_of_adjusters = 0
-    for country in countries:
-        total_amount_of_adjusters += amount_users_by_type(country, 'Монтажник')
 
-    total_stat_list = []
-    for country in countries:
-        total_stat_list.append([country, total_amount_users(country), amount_users_by_type(country, 'Дилер'),
-                                amount_users_by_type(country, 'Монтажник')])
-
-    total_stat_list.append(['Всего:', '', total_amount_of_dealers, total_amount_of_adjusters])
-
-    columns = ['Страна', 'Всего пользователей', 'Дилеры', 'Монтажники']
-    index = [i for i in range(len(total_stat_list))]
-    total_stat_df = pd.DataFrame(total_stat_list, index, columns)
-
-    with pd.ExcelWriter(f"total_stat {today}.xlsx") as writer:
-        total_stat_df.to_excel(writer)
+    # total_amount_of_dealers = 0
+    # for country in countries:
+    #     total_amount_of_dealers += amount_users_by_type(country, 'Дилер')
+    #
+    # total_amount_of_adjusters = 0
+    # for country in countries:
+    #     total_amount_of_adjusters += amount_users_by_type(country, 'Монтажник')
+    #
+    # total_stat_list = []
+    # for country in countries:
+    #     total_stat_list.append([country, total_amount_users(country), amount_users_by_type(country, 'Дилер'),
+    #                             amount_users_by_type(country, 'Монтажник')])
+    #
+    # total_stat_list.append(['Всего:', '', total_amount_of_dealers, total_amount_of_adjusters])
+    #
+    # columns = ['Страна', 'Всего пользователей', 'Дилеры', 'Монтажники']
+    # index = [i for i in range(len(total_stat_list))]
+    # total_stat_df = pd.DataFrame(total_stat_list, index, columns)
+    #
+    # with pd.ExcelWriter(f"total_stat {today}.xlsx") as writer:
+    #     total_stat_df.to_excel(writer)
 
     os.startfile(f'total_stat {today}.xlsx')
 
