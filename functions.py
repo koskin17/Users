@@ -1,10 +1,12 @@
 import os
 import pandas as pd
+from pandas import to_datetime
 from datetime import datetime, timedelta
 import time
 
-''' Столбцы в DataFrame по сканам
-'UF_PERIOD',
+
+"""Столбцы в DataFrame по сканам"""
+"""'UF_PERIOD',
 'UF_TYPE',
 'UF_POINTS',
 'UF_CODE',
@@ -22,9 +24,9 @@ import time
 'Год',
 'Сам себе',
 'Монтажник.1',
-'Комментарий' '''
+'Комментарий'"""
 
-''' Шаблон наименований столбцов по данным о пользователях '''
+"""Шаблон наименований столбцов по данным о пользователях"""
 columns_name = ['ID',
                 'Баллы',
                 'Последняя авторизация в приложении',
@@ -33,14 +35,11 @@ columns_name = ['ID',
                 'Страна',
                 'Логин',
                 'Тип пользователя',
-                'Активность',
                 'Дата регистрации',
                 'Фамилия',
                 'Имя',
                 'Отчество',
                 'E-Mail',
-                'Последняя авторизация',
-                'Дата изменения',
                 'Город проживания',
                 'Личный телефон',
                 'Компания',
@@ -51,10 +50,9 @@ columns_name = ['ID',
                 'СПК 4',
                 'СПК 5']
 
-exclude_list = []  # список исключаемых аккаунтов из подсчёта: тестовые, аксоровские и т.д.
-countries = []  # список стран в базе
+exclude_list = set()  # список исключаемых аккаунтов из подсчёта: тестовые, аксоровские и т.д.
 
-''' Список признаков аккаунтов, которые добавляются в exclude_list и которые исключаются из подсчёта '''
+"""List of sings of accounts for add in exclude_list and exclude from counting"""
 exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
                  'skalar', 'test', 'malyigor', 'ihormaly', 'axor']
 
@@ -73,38 +71,32 @@ months = ['Январь',
 
 print('Проверка файлов с данными и загрузка данных...')
 
-df_users = pd.read_excel('user_admin.xlsx')
-df_users = df_users.fillna('')  # замена значений NaN, получившихся из пустых ячеек в excel, на пустую строку
+df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
+                                                        "Последняя авторизация в приложении": to_datetime,
+                                                        "Дата регистрации": to_datetime})
+df_users = df_users.fillna('')  # change values NaN
+countries = set(df_users["Страна"])  # list of countries in DataFrame
 
-df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx')
+"""Delete empty string as spam account"""
+if '' in countries:
+    countries.remove('')
+
+df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
+                         converters={"UF_POINTS": int, "UF_USER_ID": int,
+                                     "UF_CREATED_AT": to_datetime})
 df_scans = df_scans.fillna('')
 
-surname = {}  # список фамилий по ID пользователя
-type_of_products = []  # список видов продукции
+surname = {}  # list of surname of users by
 today = datetime.now().date()
 
 
 def check_file():
-    """
-    Проверка доступа к файлу.
-    """
-    if os.listdir('..'):
-        print('Доступ к папке: OK')
-    else:
-        print('Нет доступа к папке с файлом!')
-        return False
+    """Check the availability necessary columns in file"""
+    for col_name in columns_name:
+        if col_name not in df_users.columns:
+            print(f"В загруженных данных не хватает столбца {col_name}")
 
-    ''' Проверяем наименования столбцов на листе с данными '''
-    for column_name, df_column in zip(columns_name, df_users.columns):
-        if column_name != df_column:
-            print('Порядок и/или наименование столбцов не совпадает.')
-            print('Должен быть столбец "', column_name, '", а в файле на этом месте столбец "', df_column, '"')
-            print()
-            print('Порядок и наименование столбцов в файле должен быть следующий:')
-            print(columns_name)
-            return False
-
-    print('Наименование и порядок столбцов: ОК')
+    print("Данные по пользователям успешно загружены.")
 
     if df_scans.shape[0] > 0:
         print('Данные успешно загружены. В истории сканирований', df_scans.shape[0], 'записей')
@@ -113,32 +105,14 @@ def check_file():
 
 
 def exclude():
-    """
-    Формирование списка исключаемых из подсчёта пользователей.
-    """
+    """Formation list of excluded users from count"""
 
     for email in df_users['E-Mail']:
-        if email == '':
-            continue
-        else:
-            for i in exclude_users:
-                if email not in exclude_list and i in email:
-                    exclude_list.append(email)
+        for i in exclude_users:
+            if i in email:
+                exclude_list.add(email)
 
     print('Список исключаемых аккаунтов сформирован.')
-
-
-def countries_list():
-    """
-    Формирование списка стран в базе.
-    """
-
-    for country in df_users['Страна']:
-        if country == '':
-            continue
-        else:
-            if country not in countries:
-                countries.append(country)
 
 
 def total_stat():
@@ -459,11 +433,11 @@ def sum_of_points(type_of_user, country):
     points = 0
 
     for points_by_scans, \
-        df_country, \
-        df_user_type, \
-        email, \
-        df_last_authorization in zip(df_users['Баллы'], df_users['Страна'], df_users['Тип пользователя'],
-                                     df_users['E-Mail'], df_users['Последняя авторизация в приложении']):
+            df_country, \
+            df_user_type, \
+            email, \
+            df_last_authorization in zip(df_users['Баллы'], df_users['Страна'], df_users['Тип пользователя'],
+                                         df_users['E-Mail'], df_users['Последняя авторизация в приложении']):
         if email not in exclude_list and points_by_scans != '':
             if df_user_type == type_of_user and df_country == country:
                 points += int(points_by_scans)

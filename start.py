@@ -96,7 +96,5 @@ def main():
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
 
 if check_file():
-    print('Данные успешно загружены.')
     exclude()
-    countries_list()
     main()
