@@ -1,8 +1,6 @@
 import os
 import pandas as pd
-# import xlsxwriter
-# from prettytable import PrettyTable as pt
-from datetime import datetime, timedelta  # удалил date, как неиспользуемую
+from datetime import datetime, timedelta
 import time
 
 ''' Столбцы в DataFrame по сканам
@@ -75,10 +73,11 @@ months = ['Январь',
 
 print('Проверка файлов с данными и загрузка данных...')
 
-df_users = pd.DataFrame(pd.read_excel('user_admin.xlsx'))
+df_users = pd.read_excel('user_admin.xlsx')
 df_users = df_users.fillna('')  # замена значений NaN, получившихся из пустых ячеек в excel, на пустую строку
 
-df_scans = pd.DataFrame(pd.read_excel('Данные по пользователям и сканам 2022.xlsx', index_col='ID'))
+df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx')
+df_scans = df_scans.fillna('')
 
 surname = {}  # список фамилий по ID пользователя
 type_of_products = []  # список видов продукции
