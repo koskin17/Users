@@ -54,7 +54,7 @@ exclude_list = set()  # список исключаемых аккаунтов �
 
 """List of sings of accounts for add in exclude_list and exclude from counting"""
 exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
-                 'skalar', 'test', 'malyigor', 'ihormaly', 'axor']
+                 'skalar', 'test', 'malyigor', 'ihormaly', 'axor', 'kosits']
 
 months = ['Январь',
           'Февраль',
@@ -110,17 +110,17 @@ def exclude():
     for email in df_users['E-Mail']:
         for i in exclude_users:
             if i in email:
-                exclude_list.add(email)
+                exclude_users.add(email)
 
     print('Список исключаемых аккаунтов сформирован.')
 
 
 def total_stat():
-    """
-    Формирование статистики по пользователям и странам.
+    """Formation general statistics about users by countries"""
 
-    : return: вывод итоговой таблицы
-    """
+    for country in countries:
+
+
 
     total_amount_of_dealers = 0
     for country in countries:
