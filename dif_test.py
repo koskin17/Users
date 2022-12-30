@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+import os
 
 df_users = pd.read_excel('user_admin.xlsx')
 df_users = df_users.fillna('')
@@ -11,11 +11,15 @@ df_users = df_users.fillna('')
 
 exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
                  'skalar', 'test', 'malyigor', 'ihormaly', 'axor']
-exclude_list = set()
+exclude_list = []
 
 for email in df_users['E-Mail']:
     for i in exclude_users:
-        if i in email:
-            exclude_list.add(email)
+        if i in email and email not in exclude_list:
+            exclude_list.append(email)
 
 print(exclude_list)
+df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
+print(df_users)
+df_users.to_excel('test.xlsx')
+os.startfile('test.xlsx')

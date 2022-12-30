@@ -4,8 +4,8 @@ from pandas import to_datetime
 from datetime import datetime, timedelta
 import time
 
-"""Столбцы в DataFrame по сканам"""
-"""'UF_PERIOD',
+"""Columns in DataFrame about scans
+'UF_PERIOD',
 'UF_TYPE',
 'UF_POINTS',
 'UF_CODE',
@@ -25,7 +25,7 @@ import time
 'Монтажник.1',
 'Комментарий'"""
 
-"""Шаблон наименований столбцов по данным о пользователях"""
+"""Columns for check data about users"""
 columns_name = ['ID',
                 'Баллы',
                 'Последняя авторизация в приложении',
@@ -48,7 +48,7 @@ columns_name = ['ID',
                 'СПК 3',
                 'СПК 4',
                 'СПК 5']
-exclude_list = set()  # список исключаемых аккаунтов из подсчёта: тестовые, аксоровские и т.д.
+exclude_list = set()  # list for exclude accounts from count: test, axor and so on
 
 """List of sings of accounts for add in exclude_list and exclude from counting"""
 exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
@@ -72,10 +72,10 @@ print('Проверка файлов с данными и загрузка да�
 df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
                                                         "Последняя авторизация в приложении": to_datetime,
                                                         "Дата регистрации": to_datetime})
+
 df_users = df_users.fillna('')  # change values NaN
 countries = set(df_users["Страна"])  # list of countries in DataFrame
-
-"""Delete empty string as spam account"""
+"""Delete empty string in countries"""
 if '' in countries:
     countries.remove('')
 
@@ -104,55 +104,37 @@ def check_file():
 
 def exclude():
     """Formation list of excluded users from count"""
+    global df_users
 
     for email in df_users['E-Mail']:
         for i in exclude_users:
             if i in email:
                 exclude_list.add(email)
 
+    df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
     print('Список исключаемых аккаунтов сформирован.')
 
 
 def total_stat():
     """Formation general statistics about users by countries"""
 
-    list_of_countries = []
+    list_for_df = []
     for country in countries:
-        list_of_countries.append(country)
+        tmp_list = []
+        tmp_list.append(country)
         data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Дилер")]
-        dealers.append(len(data["ID"]))
+        tmp_list.append(len(data["ID"]))
         data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Монтажник")]
-        adjusters.append(len(data["ID"]))
+        tmp_list.append(len(data["ID"]))
+        tmp_list.insert(1, sum(tmp_list[1:]))
+        list_for_df.append(tmp_list)
 
-    total_stat_df = pd.DataFrame(list_of_countries,
-                                 [i for i in range(len(countries)],
-                                 ["Страна"])
+    columns_for_df = ['Страна', 'Всего пользователей', 'Дилеров', 'Монтажников']
+    index_for_df = range(len(list_for_df))
+    total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df)
+    total_stat_df.to_excel(f"total_stats_about_users_for_{today}.xlsx")
 
-    total_stat_df.to_excel(f"total stats about users for {today}.xlsx")
-
-    # total_amount_of_dealers = 0
-    # for country in countries:
-    #     total_amount_of_dealers += amount_users_by_type(country, 'Дилер')
-    #
-    # total_amount_of_adjusters = 0
-    # for country in countries:
-    #     total_amount_of_adjusters += amount_users_by_type(country, 'Монтажник')
-    #
-    # total_stat_list = []
-    # for country in countries:
-    #     total_stat_list.append([country, total_amount_users(country), amount_users_by_type(country, 'Дилер'),
-    #                             amount_users_by_type(country, 'Монтажник')])
-    #
-    # total_stat_list.append(['Всего:', '', total_amount_of_dealers, total_amount_of_adjusters])
-    #
-    # columns = ['Страна', 'Всего пользователей', 'Дилеры', 'Монтажники']
-    # index = [i for i in range(len(total_stat_list))]
-    # total_stat_df = pd.DataFrame(total_stat_list, index, columns)
-    #
-    # with pd.ExcelWriter(f"total_stat {today}.xlsx") as writer:
-    #     total_stat_df.to_excel(writer)
-
-    os.startfile(f'total_stat {today}.xlsx')
+    os.startfile(f'total_stats_about_users_for_{today}.xlsx')
 
 
 def total_amount_users(country):
