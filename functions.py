@@ -4,7 +4,6 @@ from pandas import to_datetime
 from datetime import datetime, timedelta
 import time
 
-
 """Столбцы в DataFrame по сканам"""
 """'UF_PERIOD',
 'UF_TYPE',
@@ -49,7 +48,6 @@ columns_name = ['ID',
                 'СПК 3',
                 'СПК 4',
                 'СПК 5']
-
 exclude_list = set()  # список исключаемых аккаунтов из подсчёта: тестовые, аксоровские и т.д.
 
 """List of sings of accounts for add in exclude_list and exclude from counting"""
@@ -86,7 +84,7 @@ df_scans = pd.read_excel('Данные по пользователям и ска
                                      "UF_CREATED_AT": to_datetime})
 df_scans = df_scans.fillna('')
 
-surname = {}  # list of surname of users by
+surname = {}  # list of surnames of users by
 today = datetime.now().date()
 
 
@@ -110,7 +108,7 @@ def exclude():
     for email in df_users['E-Mail']:
         for i in exclude_users:
             if i in email:
-                exclude_users.add(email)
+                exclude_list.add(email)
 
     print('Список исключаемых аккаунтов сформирован.')
 
@@ -118,25 +116,19 @@ def exclude():
 def total_stat():
     """Formation general statistics about users by countries"""
 
-    dealers = []
-    adjusters = []
     list_of_countries = []
     for country in countries:
         list_of_countries.append(country)
-        data = df_users[data["Страна"] == country & data["Тип пользователя"] == "Дилер"]
+        data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Дилер")]
         dealers.append(len(data["ID"]))
-        data = df_users[data["Страна"] == country & data["Тип пользователя"] == "Монтажник"]
+        data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Монтажник")]
         adjusters.append(len(data["ID"]))
 
-    total_stat_df = pd.DataFrame([[list_of_countries], [dealers], [adjusters]],
-                                 [i for i in range(len(list_of_countries))],
-                                 ["Страна", "Дилеров", "Монтажников"])
+    total_stat_df = pd.DataFrame(list_of_countries,
+                                 [i for i in range(len(countries)],
+                                 ["Страна"])
 
     total_stat_df.to_excel(f"total stats about users for {today}.xlsx")
-
-
-
-
 
     # total_amount_of_dealers = 0
     # for country in countries:
