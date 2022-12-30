@@ -67,14 +67,14 @@ months = ['Январь',
           'Ноябрь',
           'Декабрь']
 
-print('Проверка файлов с данными и загрузка данных...')
+print("Загрузка и проверка данных...")
 
 """Load data about users"""
 df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
                                                         "Последняя авторизация в приложении": to_datetime,
                                                         "Дата регистрации": to_datetime})
 
-""" Clean spam and test accounts in Users_DataFrame """
+"""Clean spam and test accounts in Users_DataFrame"""
 df_users = df_users.fillna('')  # change values NaN
 df_users = df_users.loc[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
 
@@ -85,7 +85,15 @@ for col_name in columns_name:
 
 print("Данные по пользователям успешно загружены.")
 
-countries = list(set(df_users["Страна"])).sort()  # list of countries in DataFrame
+for email in df_users['E-Mail']:
+    for i in exclude_users:
+        if i in email:
+            exclude_list.add(email)
+
+df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
+print('Список исключаемых аккаунтов сформирован.')
+
+countries = set(df_users["Страна"])  # list of countries in DataFrame
 
 """Load data about scans"""
 print("Загрузка данных по сканам...")
@@ -94,29 +102,12 @@ df_scans = pd.read_excel('Данные по пользователям и ска
                                      "UF_CREATED_AT": to_datetime})
 df_scans = df_scans.fillna('')  # change values NaN
 
-if df_scans.shape[0] <= 0:
-    print("")
-    print('Данные по сканам успешно загружены. В истории сканирований', df_scans.shape[0], 'записей')
-
 surname = {}  # list of surnames of users by
 today = datetime.now().date()
 
 
-def exclude():
-    """Formation list of excluded users from count and clean DataFrame"""
-    global df_users
-
-    for email in df_users['E-Mail']:
-        for i in exclude_users:
-            if i in email:
-                exclude_list.add(email)
-
-    df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
-    print('Список исключаемых аккаунтов сформирован.')
-
-
 def total_stat():
-    """Formation general statistics about users by countries"""
+    """Formation general statistics about users by countries."""
 
     list_for_df = []
     for country in countries:
@@ -133,76 +124,7 @@ def total_stat():
     index_for_df = range(len(list_for_df))
     total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df)
     total_stat_df.to_excel(f"total_stats_about_users_for_{today}.xlsx")
-
     os.startfile(f'total_stats_about_users_for_{today}.xlsx')
-
-
-def total_amount_users(country):
-    """
-    Подсчёт общего кол-ва пользователей по стране.
-
-    : param country: Страна
-    : type country: str
-    : return: общее кол-во пользователей
-    : type return: int
-    """
-
-    total_amount = 0
-    for df_email, df_user_type, df_country in zip(df_users['E-Mail'], df_users['Тип пользователя'], df_users['Страна']):
-        if df_email not in exclude_list:
-            if df_country == country and (df_user_type == 'Дилер' or df_user_type == 'Монтажник'):
-                total_amount += 1
-
-    return total_amount
-
-
-def amount_users_by_country(users_type):
-    """
-    Вывод информации о кол-ве дилеров и монтажников по странам.
-    Параметр передаётся при вызове функциями dealers или adjusters.
-
-    : param users_type: Тип пользователя (дилер или монтажник)
-    : type users_type: str
-    : return: вывод итоговой таблицы
-    """
-
-    amount_users = 0
-    if users_type == 'Дилер':
-        amount_users_by_country_list = []
-
-        for country in countries:
-            amount = amount_users_by_type(country, users_type)
-            amount_users_by_country_list.append([country, amount])
-            amount_users += amount
-
-        amount_users_by_country_list.append(['Всего:', amount_users])
-
-        columns = ['Страна', 'Дилеров']
-        index = [i for i in range(len(amount_users_by_country_list))]
-        amount_users_by_country_df = pd.DataFrame(amount_users_by_country_list, index, columns)
-
-        with pd.ExcelWriter(f"amount_dealers_by_country {today}.xlsx") as writer:
-            amount_users_by_country_df.to_excel(writer)
-
-        os.startfile(f'amount_dealers_by_country {today}.xlsx')
-
-    elif users_type == 'Монтажник':
-        amount_users_by_country_list = []
-        for country in countries:
-            amount = amount_users_by_type(country, users_type)
-            amount_users_by_country_list.append([country, amount])
-            amount_users += amount
-
-        amount_users_by_country_list.append(['Всего:', amount_users])
-
-        columns = ['Страна', 'Монтажников']
-        index = [i for i in range(len(amount_users_by_country_list))]
-        amount_users_by_country_df = pd.DataFrame(amount_users_by_country_list, index, columns)
-
-        with pd.ExcelWriter(f"amount_adjusters_by_country {today}.xlsx") as writer:
-            amount_users_by_country_df.to_excel(writer)
-
-        os.startfile(f'amount_adjusters_by_country {today}.xlsx')
 
 
 def amount_users_by_type(country, user_type):
