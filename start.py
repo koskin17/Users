@@ -8,9 +8,9 @@ def main():
         print('Информация по пользователям:')
         print()
         print('1: Пользователи по странам')
-        print('4: Авторизация пользователей')
-        print('5: Авторизация пользователей за период')
-        print('6: Общая информация по баллам на текущий момент')
+        print('2: Авторизация пользователей')
+        print('3: Авторизация пользователей за период')
+        print('4: Общая информация по баллам на текущий момент')
         print()
         print('Информация по сканам:')
         print()
@@ -28,9 +28,9 @@ def main():
         match choice:
             case '1':
                 total_stat()
-            case '4':
+            case '2':
                 last_authorization_in_app()
-            case '5':
+            case '3':
                 start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
                 try:
                     valid_start_date = time.strptime(start_date, '%d.%m.%Y')
@@ -44,7 +44,7 @@ def main():
                         print('Дата введена неверно!')
                 except ValueError:
                     print('Дата введена неверно!')
-            case '6':
+            case '4':
                 points_by_users_and_countries()
             case '7':
                 table_about_scan_users_in_year()
