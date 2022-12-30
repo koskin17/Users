@@ -190,9 +190,7 @@ def last_authorization(year, user_type, country):
 
 
 def last_authorization_in_app():
-    """
-    Вывод информации о кол-ве пользователей, последний раз авторизировавшихся в приложении по годам.
-    """
+    """Output information about users authorized in app by years."""
 
     last_authorization_in_app_list = []
     total_amount = 0
