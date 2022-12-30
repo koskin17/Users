@@ -103,7 +103,7 @@ def check_file():
 
 
 def exclude():
-    """Formation list of excluded users from count"""
+    """Formation list of excluded users from count and clean DataFrame"""
     global df_users
 
     for email in df_users['E-Mail']:
