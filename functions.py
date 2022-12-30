@@ -69,37 +69,37 @@ months = ['Январь',
 
 print('Проверка файлов с данными и загрузка данных...')
 
+"""Load data about users"""
 df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
                                                         "Последняя авторизация в приложении": to_datetime,
                                                         "Дата регистрации": to_datetime})
 
+""" Clean spam and test accounts in Users_DataFrame """
 df_users = df_users.fillna('')  # change values NaN
-countries = set(df_users["Страна"])  # list of countries in DataFrame
-"""Delete empty string in countries"""
-if '' in countries:
-    countries.remove('')
+df_users = df_users.loc[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
 
+"""Check the availability necessary columns in file"""
+for col_name in columns_name:
+    if col_name not in df_users.columns:
+        print(f"В загруженных данных не хватает столбца {col_name}")
+
+print("Данные по пользователям успешно загружены.")
+
+countries = list(set(df_users["Страна"])).sort()  # list of countries in DataFrame
+
+"""Load data about scans"""
+print("Загрузка данных по сканам...")
 df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
                          converters={"UF_POINTS": int, "UF_USER_ID": int,
                                      "UF_CREATED_AT": to_datetime})
-df_scans = df_scans.fillna('')
+df_scans = df_scans.fillna('')  # change values NaN
+
+if df_scans.shape[0] <= 0:
+    print("")
+    print('Данные по сканам успешно загружены. В истории сканирований', df_scans.shape[0], 'записей')
 
 surname = {}  # list of surnames of users by
 today = datetime.now().date()
-
-
-def check_file():
-    """Check the availability necessary columns in file"""
-    for col_name in columns_name:
-        if col_name not in df_users.columns:
-            print(f"В загруженных данных не хватает столбца {col_name}")
-
-    print("Данные по пользователям успешно загружены.")
-
-    if df_scans.shape[0] > 0:
-        print('Данные по сканам успешно загружены. В истории сканирований', df_scans.shape[0], 'записей')
-
-    return True
 
 
 def exclude():

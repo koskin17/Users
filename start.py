@@ -95,6 +95,4 @@ def main():
 
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
 
-if check_file():
-    exclude()
-    main()
+main()
