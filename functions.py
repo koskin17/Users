@@ -29,25 +29,14 @@ import time
 columns_name = ['ID',
                 'Баллы',
                 'Последняя авторизация в приложении',
-                'Количество сеансов',
                 'Город работы',
                 'Страна',
-                'Логин',
                 'Тип пользователя',
-                'Дата регистрации',
                 'Фамилия',
                 'Имя',
                 'Отчество',
                 'E-Mail',
-                'Город проживания',
-                'Личный телефон',
-                'Компания',
-                'Назва дилера',
-                'СПК 1',
-                'СПК 2',
-                'СПК 3',
-                'СПК 4',
-                'СПК 5']
+                'Город проживания']
 exclude_list = set()  # list for exclude accounts from count: test, axor and so on
 
 """List of sings of accounts for add in exclude_list and exclude from counting"""
@@ -67,25 +56,25 @@ months = ['Январь',
           'Ноябрь',
           'Декабрь']
 
-print("Загрузка и проверка данных...")
+print("Загрузка данных по пользователя...")
 
 """Load data about users"""
+# "Последняя авторизация в приложении": to_datetime,
 df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
-                                                        "Последняя авторизация в приложении": to_datetime,
                                                         "Дата регистрации": to_datetime})
 
-"""Clean spam and test accounts in Users_DataFrame"""
+print("Данные по пользователям загружены.")
 df_users = df_users.fillna('')  # change values NaN
-df_users = df_users.loc[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
 
 """Check the availability necessary columns in file"""
 for col_name in columns_name:
     if col_name not in df_users.columns:
         print(f"В загруженных данных не хватает столбца {col_name}")
 
-print("Данные по пользователям успешно загружены.")
+"""Clean spam and test accounts in Users_DataFrame"""
+df_users = df_users[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
 
-for email in df_users['E-Mail']:
+for email in df_users['E-Mail']:  # creating list of excluded accounts
     for i in exclude_users:
         if i in email:
             exclude_list.add(email)
@@ -122,29 +111,17 @@ def total_stat():
 
     columns_for_df = ['Страна', 'Всего пользователей', 'Дилеров', 'Монтажников']
     index_for_df = range(len(list_for_df))
-    total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df)
+    total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
+                                                                                        ascending=False)
     total_stat_df.to_excel(f"total_stats_about_users_for_{today}.xlsx")
     os.startfile(f'total_stats_about_users_for_{today}.xlsx')
 
 
-def amount_users_by_type(country, user_type):
-    """
-    Подсчёт кол-ва дилеров / монтажников в стране.
-    Параметры передаются при вызове функцией amount_users_by_country.
+def amount_users_by_type(country: str, user_type: str):
+    """ Count dealers / adjusters in country. """
 
-    : param country: Страна
-    : type country: str
-    : param user_type: Тип пользователя (дилер / монтажник)
-    : type user_type: str
-    : return: кол-во пользователей
-    : type return: int
-    """
-
-    amount_of_users = 0
-    for df_email, df_user_type, df_country in zip(df_users['E-Mail'], df_users['Тип пользователя'], df_users['Страна']):
-        if df_email not in exclude_list:
-            if df_user_type == user_type and df_country == country:
-                amount_of_users += 1
+    data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == user_type)]
+    amount_of_users = len(data["ID"])
 
     return amount_of_users
 
@@ -213,9 +190,6 @@ def last_authorization_in_app():
              last_authorization(2020, 'Дилер', country), last_authorization(2021, 'Дилер', country),
              last_authorization(2022, 'Дилер', country), last_authorization(None, 'Дилер', country)])
 
-    last_authorization_in_app_list.append(['Всего:', 'Дилеры', total_amount, authorization2019,
-                                           authorization2020, authorization2021,
-                                           authorization2022, noneauthorization])
     last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
     total_amount = 0
@@ -239,10 +213,6 @@ def last_authorization_in_app():
                                                last_authorization(2021, 'Монтажник', country),
                                                last_authorization(2022, 'Монтажник', country),
                                                last_authorization(None, 'Монтажник', country)])
-
-    last_authorization_in_app_list.append(['Всего:', 'Монтажники', total_amount, authorization2019,
-                                           authorization2020, authorization2021,
-                                           authorization2022, noneauthorization])
 
     columns = ['Страна', 'Тип пользователей', 'Всего в базе', 'в 2019 году', 'в 2020 году', 'в 2021 году',
                'в 2022 году', 'Не авторизировались']

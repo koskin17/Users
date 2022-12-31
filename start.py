@@ -14,12 +14,12 @@ def main():
         print()
         print('Информация по сканам:')
         print()
-        print('7. Кол-во сканировавших пользователей в текущем году на данный момент.')
-        print('8. Данные по насканированным баллам в текущем году на данный момент.')
-        print('9. ТОП дилеров по сканам в текущем году на данный момент.')
-        print('10. ТОП монтажников по сканам в текущем году на данный момент.')
-        print('11. Кол-во пользователей и насканированных баллов за период.')
-        print('12. Кол-во сканировавших пользователей в текущем году по месяцам.')
+        print('5. Кол-во сканировавших пользователей в текущем году на данный момент.')
+        print('6. Данные по насканированным баллам в текущем году на данный момент.')
+        print('7. ТОП дилеров по сканам в текущем году на данный момент.')
+        print('8. ТОП монтажников по сканам в текущем году на данный момент.')
+        print('9. Кол-во пользователей и насканированных баллов за период.')
+        print('10. Кол-во сканировавших пользователей в текущем году по месяцам.')
         print()
         print('Q: Завершить работу')
         print()
@@ -46,11 +46,11 @@ def main():
                     print('Дата введена неверно!')
             case '4':
                 points_by_users_and_countries()
-            case '7':
+            case '5':
                 table_about_scan_users_in_year()
-            case '8':
+            case '6':
                 data_about_points()
-            case '9':
+            case '7':
                 country_list = {}
                 for i in range(len(countries)):
                     print(i, ' - ', countries[i])
@@ -59,7 +59,7 @@ def main():
 
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Дилер')
-            case '10':
+            case '8':
                 country_list = {}
                 for i in range(len(countries)):
                     print(i, ' - ', countries[i])
@@ -68,7 +68,7 @@ def main():
 
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Монтажник')
-            case '11':
+            case '9':
                 start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
                 try:
                     valid_start_date = time.strptime(start_date, '%d.%m.%Y')
@@ -82,7 +82,7 @@ def main():
                         print('Дата введена неверно!')
                 except ValueError:
                     print('Дата введена неверно!')
-            case '12':
+            case '10':
                 table_scanned_users_by_months()
             case 'q':
                 finish()
