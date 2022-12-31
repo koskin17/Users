@@ -74,7 +74,8 @@ for col_name in columns_name:
 """Clean spam and test accounts in Users_DataFrame"""
 df_users = df_users[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
 
-for email in df_users['E-Mail']:  # creating list of excluded accounts
+"""Creating list of excluded accounts"""
+for email in df_users['E-Mail']:
     for i in exclude_users:
         if i in email:
             exclude_list.add(email)
@@ -143,25 +144,38 @@ def last_authorization(year, user_type, country):
 
     last = 0
     if year is None:
-        for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
-                                                                          df_users[
-                                                                              'Последняя авторизация в приложении'],
-                                                                          df_users['Тип пользователя'],
-                                                                          df_users['Страна']):
-            if email not in exclude_list:
-                if df_last_authorization == '' and df_user_type == user_type and df_country == country:
-                    last += 1
+        data = df_users[
+            df_users['Последняя авторизация в приложении'] == '' &
+            df_users['Тип пользователя'] == user_type &
+            df_users['Страна'] == country]
+
+        last = len(data["ID"])
+
+        # for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
+        #                                                                   df_users[
+        #                                                                       'Последняя авторизация в приложении'],
+        #                                                                   df_users['Тип пользователя'],
+        #                                                                   df_users['Страна']):
+        #     if email not in exclude_list:
+        #         if df_last_authorization == '' and df_user_type == user_type and df_country == country:
+        #             last += 1
     else:
-        for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
-                                                                          df_users[
-                                                                              'Последняя авторизация в приложении'],
-                                                                          df_users['Тип пользователя'],
-                                                                          df_users['Страна']):
-            if email not in exclude_list:
-                if df_last_authorization == '':
-                    continue
-                elif int(df_last_authorization[6:10]) == year and df_user_type == user_type and df_country == country:
-                    last += 1
+        data = df_users[int(df_users["Последняя авторизация в приложении"][6:10]) == year &
+                        df_users["Тип пользователя"] == user_type &
+                        df_users["Страна"] == country]
+
+        last = len(data["ID"])
+
+        # for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
+        #                                                                   df_users[
+        #                                                                       'Последняя авторизация в приложении'],
+        #                                                                   df_users['Тип пользователя'],
+        #                                                                   df_users['Страна']):
+        #     if email not in exclude_list:
+        #         if df_last_authorization == '':
+        #             continue
+        #         elif int(df_last_authorization[6:10]) == year and df_user_type == user_type and df_country == country:
+        #             last += 1
 
     return last
 
@@ -219,7 +233,7 @@ def last_authorization_in_app():
     index = [i for i in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
-    last_authorization_in_app_df.to_excel(f'ast_authorization_in_app {today}.xlsx')
+    last_authorization_in_app_df.to_excel(f'last_authorization_in_app {today}.xlsx')
     os.startfile(f'last_authorization_in_app {today}.xlsx')
 
 
