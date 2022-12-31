@@ -219,8 +219,7 @@ def last_authorization_in_app():
     index = [i for i in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
-    with pd.ExcelWriter(f"last_authorization_in_app {today}.xlsx") as writer:
-        last_authorization_in_app_df.to_excel(writer)
+    last_authorization_in_app_df.to_excel(f'ast_authorization_in_app {today}.xlsx')
     os.startfile(f'last_authorization_in_app {today}.xlsx')
 
 
