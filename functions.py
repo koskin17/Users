@@ -59,12 +59,11 @@ months = ['Январь',
 print("Загрузка данных по пользователя...")
 
 """Load data about users"""
-# "Последняя авторизация в приложении": to_datetime,
-df_users = pd.read_excel('user_admin.xlsx', converters={"ID": int, "Баллы": int,
-                                                        "Дата регистрации": to_datetime})
+df_users = pd.read_excel('user_admin.xlsx', na_values="NA", converters={"ID": int, "Баллы": int,
+                                                        "Последняя авторизация в приложении": to_datetime})
 
 print("Данные по пользователям загружены.")
-df_users = df_users.fillna('')  # change values NaN
+df_users = df_users.fillna('')
 
 """Check the availability necessary columns in file"""
 for col_name in columns_name:
@@ -80,6 +79,7 @@ for email in df_users['E-Mail']:
         if i in email:
             exclude_list.add(email)
 
+"""Clean DataFrame from exclude accounts"""
 df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
 print('Список исключаемых аккаунтов сформирован.')
 
@@ -90,9 +90,9 @@ print("Загрузка данных по сканам...")
 df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
                          converters={"UF_POINTS": int, "UF_USER_ID": int,
                                      "UF_CREATED_AT": to_datetime})
-df_scans = df_scans.fillna('')  # change values NaN
+df_scans = df_scans.fillna('')
 
-surname = {}  # list of surnames of users by
+surname = {}  # list for surnames
 today = datetime.now().date()
 
 
@@ -127,27 +127,18 @@ def amount_users_by_type(country: str, user_type: str):
     return amount_of_users
 
 
-def last_authorization(year, user_type, country):
-    """
-    Подсчёт кол-ва пользователей, последний раз авторизировавшихся в приложении за конкретный год.
-    Параметры передаются при вызове функцией last_authorization_in_app.
-    
-    : param year: int
-    : type year: str
-    : param user_type: Тип пользователя (дилер или монтажник)
-    : type user_type: str
-    : param country: Страна
-    : type country: str
-    : return: кол-во последний раз авторизовавщихся по стране и году
-    : type return: int
-    """
+def last_authorization(year: int, user_type: str, country: str):
+    """Counting quantity of users with last authorisation in specific year."""
+
+    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+    df_users.fillna('', inplace=True)
 
     last = 0
     if year is None:
         data = df_users[
-            df_users['Последняя авторизация в приложении'] == '' &
-            df_users['Тип пользователя'] == user_type &
-            df_users['Страна'] == country]
+            (df_users['Year'] == '') &
+            (df_users['Тип пользователя'] == user_type) &
+            (df_users['Страна'] == country)]
 
         last = len(data["ID"])
 
@@ -160,9 +151,9 @@ def last_authorization(year, user_type, country):
         #         if df_last_authorization == '' and df_user_type == user_type and df_country == country:
         #             last += 1
     else:
-        data = df_users[int(df_users["Последняя авторизация в приложении"][6:10]) == year &
-                        df_users["Тип пользователя"] == user_type &
-                        df_users["Страна"] == country]
+        data = df_users[(df_users['Year'] == year) &
+                        (df_users["Тип пользователя"] == user_type) &
+                        (df_users["Страна"] == country)]
 
         last = len(data["ID"])
 
