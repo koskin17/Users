@@ -64,6 +64,7 @@ df_users = pd.read_excel('user_admin.xlsx',
                          converters={"ID": int, "Баллы": int, "Последняя авторизация в приложении": to_datetime})
 
 print("Данные по пользователям загружены.")
+df_users['Баллы'].fillna(0, inplace=True)
 df_users = df_users.fillna('')
 
 """Check the availability necessary columns in file"""
@@ -282,30 +283,14 @@ def authorization_during_period(start_date, end_date):
     os.startfile(f'authorization_during_period {start_date}-{end_date}.xlsx')
 
 
-def sum_of_points(type_of_user, country):
-    """
-    Подсчёт кол-ва баллов у пользователей по странам.
-    Параметры передаются при вызове функцией points_by_users_and_counties.
+def sum_of_points(type_of_user: str, country: str):
+    """ Count point of users by country"""
 
-    : param type_of_user: Тип пользователя (дилер ии монтажник)
-    : type type_of_user: str
-    : param country: Страна
-    : type country: str
-    : return: кол-во пользователей в стране
-    : type return: int
-    """
+    data = df_users[(df_users['Тип пользователя'] == type_of_user) &
+                    (df_users['Страна'] == country)]
 
-    points = 0
-
-    for points_by_scans, \
-            df_country, \
-            df_user_type, \
-            email, \
-            df_last_authorization in zip(df_users['Баллы'], df_users['Страна'], df_users['Тип пользователя'],
-                                         df_users['E-Mail'], df_users['Последняя авторизация в приложении']):
-        if email not in exclude_list and points_by_scans != '':
-            if df_user_type == type_of_user and df_country == country:
-                points += int(points_by_scans)
+    # data['Баллы'].fillna(0, inplace=True)
+    points = sum(data['Баллы'])
 
     return points
 

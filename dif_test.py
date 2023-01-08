@@ -4,14 +4,22 @@ import os
 
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
-                         converters={'Последняя авторизация в приложении': to_datetime})
+                         converters={"ID": int, "Баллы": int, "Последняя авторизация в приложении": to_datetime})
+
+df_users['Баллы'].fillna(0, inplace=True)
+data = df_users[
+        (df_users['Тип пользователя'] == 'Дилер') &
+        (df_users['Страна'] == 'Украина')]
+
+point = sum(data['Баллы'])
+print(point)
 # df_users['Month'] = df_users['Последняя авторизация в приложении'].dt.month
 # print(df_users['Month'])
-df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-df_users.fillna('', inplace=True)
-print(df_users['Year'])
-data = df_users[df_users['Year'] == '']
-print(len(data["ID"]))
+# df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+# df_users.fillna('', inplace=True)
+# print(df_users['Year'])
+# data = df_users[df_users['Year'] == '']
+# print(len(data["ID"]))
 # print(len(data['ID']))
 # print(df_users[(df_users['Последняя авторизация в приложении'] > '2021-01-01') &
 #                (df_users['Последняя авторизация в приложении'] < '2021-12-31')])
