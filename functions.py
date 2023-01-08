@@ -59,8 +59,9 @@ months = ['Январь',
 print("Загрузка данных по пользователя...")
 
 """Load data about users"""
-df_users = pd.read_excel('user_admin.xlsx', na_values="NA", converters={"ID": int, "Баллы": int,
-                                                        "Последняя авторизация в приложении": to_datetime})
+df_users = pd.read_excel('user_admin.xlsx',
+                         na_values="NA",
+                         converters={"ID": int, "Баллы": int, "Последняя авторизация в приложении": to_datetime})
 
 print("Данные по пользователям загружены.")
 df_users = df_users.fillna('')
@@ -141,32 +142,12 @@ def last_authorization(year: int, user_type: str, country: str):
             (df_users['Страна'] == country)]
 
         last = len(data["ID"])
-
-        # for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
-        #                                                                   df_users[
-        #                                                                       'Последняя авторизация в приложении'],
-        #                                                                   df_users['Тип пользователя'],
-        #                                                                   df_users['Страна']):
-        #     if email not in exclude_list:
-        #         if df_last_authorization == '' and df_user_type == user_type and df_country == country:
-        #             last += 1
     else:
         data = df_users[(df_users['Year'] == year) &
                         (df_users["Тип пользователя"] == user_type) &
                         (df_users["Страна"] == country)]
 
         last = len(data["ID"])
-
-        # for email, df_last_authorization, df_user_type, df_country in zip(df_users['E-Mail'],
-        #                                                                   df_users[
-        #                                                                       'Последняя авторизация в приложении'],
-        #                                                                   df_users['Тип пользователя'],
-        #                                                                   df_users['Страна']):
-        #     if email not in exclude_list:
-        #         if df_last_authorization == '':
-        #             continue
-        #         elif int(df_last_authorization[6:10]) == year and df_user_type == user_type and df_country == country:
-        #             last += 1
 
     return last
 
