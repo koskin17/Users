@@ -289,7 +289,6 @@ def sum_of_points(type_of_user: str, country: str):
     data = df_users[(df_users['Тип пользователя'] == type_of_user) &
                     (df_users['Страна'] == country)]
 
-    # data['Баллы'].fillna(0, inplace=True)
     points = sum(data['Баллы'])
 
     return points
