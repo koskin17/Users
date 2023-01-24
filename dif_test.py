@@ -1,18 +1,38 @@
+import datetime
+
 import pandas as pd
 from pandas import to_datetime
 import os
 
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
-                         converters={"ID": int, "Баллы": int, "Последняя авторизация в приложении": to_datetime})
+                         converters={"ID": int, "Баллы": int})
 
-df_users['Баллы'].fillna(0, inplace=True)
-data = df_users[
-        (df_users['Тип пользователя'] == 'Дилер') &
-        (df_users['Страна'] == 'Украина')]
+# df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
+#                                                       format='%d.%m.%Y %H:%M:%S')
 
-point = sum(data['Баллы'])
-print(point)
+df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
+                                                      format='%d.%m.%Y %H:%M:%S').dt.date
+
+data = df_users[(df_users['Авторизация в приложении'] >= datetime.date(2021, 7, 1)) &
+                 (df_users['Авторизация в приложении'] <= datetime.date(2021, 7, 31))]
+
+print(len(data['ID']))
+# print(df_users['Авторизация в приложении'])
+# for _ in df_users['Авторизация в приложении']:
+#     if _ == datetime.date(2021, 6, 1):
+#         print(_)
+# print(df_users.dtypes)
+# data = df_users[df_users['Авторизация'] == datetime.date(2021,6,1)]
+# print(data)
+
+# df_users['Баллы'].fillna(0, inplace=True)
+# data = df_users[
+#         (df_users['Тип пользователя'] == 'Дилер') &
+#         (df_users['Страна'] == 'Украина')]
+#
+# point = sum(data['Баллы'])
+# print(point)
 # df_users['Month'] = df_users['Последняя авторизация в приложении'].dt.month
 # print(df_users['Month'])
 # df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
@@ -21,9 +41,6 @@ print(point)
 # data = df_users[df_users['Year'] == '']
 # print(len(data["ID"]))
 # print(len(data['ID']))
-# print(df_users[(df_users['Последняя авторизация в приложении'] > '2021-01-01') &
-#                (df_users['Последняя авторизация в приложении'] < '2021-12-31')])
-
 # df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx')
 # df_scans = df_scans.fillna('')
 # print(df_scans.head())

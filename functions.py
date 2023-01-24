@@ -295,15 +295,17 @@ def sum_of_points(type_of_user: str, country: str):
 
 
 def points_by_users_and_countries():
-    """Вывод информации о кол-ве баллов у пользователей по странам."""
+    """Output information about points of users by countries"""
 
     points_by_users_and_countries_list = []
     for country in countries:
         total_points = 0
-        points_by_users_and_countries_list.append([country, 'Дилеры', sum_of_points('Дилер', country)])
-        total_points += sum_of_points('Дилер', country)
-        points_by_users_and_countries_list.append([country, 'Монтажники', sum_of_points('Монтажник', country)])
-        total_points += sum_of_points('Монтажник', country)
+        points = sum_of_points('Дилер', country)
+        points_by_users_and_countries_list.append([country, 'Дилеры', points])
+        total_points += points
+        points = sum_of_points('Монтажник', country)
+        points_by_users_and_countries_list.append([country, 'Монтажники', points])
+        total_points += points
         points_by_users_and_countries_list.append(['Всего баллов:', '', total_points])
         points_by_users_and_countries_list.append(['', '', ''])
 
@@ -339,18 +341,11 @@ def table_about_scan_users_in_year():
     os.startfile(f'table_about_scan_users_in_year {today}.xlsx')
 
 
-def scanned_users(country, user_type, himself=True):
+def scanned_users(country: str, user_type: str, himself=True):
     """
     Подсчёт общего кол-ва сканировавших пользователей в текущем году.
-    Функция вызывается при построении таблицы функцией table_total_info.
-    Параметры передаются фукцией table_total_info.
-    
-    : param county: Страна
-    : type country: str
-    : param user_type: тип пользователя (дилер или монтажник)
-    : type user_type: str
-    : return: кол-во пользователей по ID
-    : type return: int
+    Функция вызывается при построении таблицы функцией table_about_scan_users_in_year.
+    Параметры передаются функцией table_about_scan_users_in_year.
     """
 
     count = set()
