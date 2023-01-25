@@ -1,4 +1,6 @@
 import datetime
+from datetime import datetime
+import time
 
 import pandas as pd
 from pandas import to_datetime
@@ -7,17 +9,27 @@ import os
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
                          converters={"ID": int, "Баллы": int})
-
+#
 # df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
 #                                                       format='%d.%m.%Y %H:%M:%S')
+#
+df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
+                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize() #dt.date
+start = datetime.strptime(input("Дата начала в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
+end = datetime.strptime(input("Дата конца в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
+data = df_users[(start <= df_users['Последняя авторизация в приложении']) &
+                (df_users['Последняя авторизация в приложении'] <= end)]
+data.to_excel('test.xlsx')
 
-df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
-                                                      format='%d.%m.%Y %H:%M:%S').dt.date
+# print(start)
+# end = datetime.strptime(input("Дата конца в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y').date()
+# print(end)
 
-data = df_users[(df_users['Авторизация в приложении'] >= datetime.date(2021, 7, 1)) &
-                 (df_users['Авторизация в приложении'] <= datetime.date(2021, 7, 31))]
 
-print(len(data['ID']))
+# data = df_users[(df_users['Авторизация в приложении'] >= datetime.date(2021, 7, 1)) &
+#                  (df_users['Авторизация в приложении'] <= datetime.date(2021, 7, 31))]
+#
+# print(len(data['ID']))
 # print(df_users['Авторизация в приложении'])
 # for _ in df_users['Авторизация в приложении']:
 #     if _ == datetime.date(2021, 6, 1):

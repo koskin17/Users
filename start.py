@@ -31,19 +31,18 @@ def main():
             case '2':
                 last_authorization_in_app()
             case '3':
-                start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
+                # start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
                 try:
-                    valid_start_date = time.strptime(start_date, '%d.%m.%Y')
-                    start_date = time.strftime('%d.%m.%Y', valid_start_date)
-                    end_date = input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): ')
+                    start_date = datetime.strptime(
+                        input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
                     try:
-                        valid_end_date = time.strptime(end_date, '%d.%m.%Y')
-                        end_date = time.strftime('%d.%m.%Y', valid_end_date)
+                        end_date = datetime.strptime(
+                            input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
                         authorization_during_period(start_date, end_date)
                     except ValueError:
-                        print('Дата введена неверно!')
+                        print('Конечная дата периода введена неверно!')
                 except ValueError:
-                    print('Дата введена неверно!')
+                    print('Начальная дата периода введена неверно!')
             case '4':
                 points_by_users_and_countries()
             case '5':
@@ -89,5 +88,5 @@ def main():
 
 
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
-
-main()
+if check_file():
+    main()

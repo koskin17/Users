@@ -56,21 +56,28 @@ months = ['Январь',
           'Ноябрь',
           'Декабрь']
 
-print("Загрузка данных по пользователя...")
+print("Загрузка данных по пользователям...")
 
 """Load data about users"""
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
-                         converters={"ID": int, "Баллы": int, "Последняя авторизация в приложении": to_datetime})
-
-print("Данные по пользователям загружены.")
+                         converters={"ID": int, "Баллы": int})
+df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
+                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize()
 df_users['Баллы'].fillna(0, inplace=True)
 df_users = df_users.fillna('')
+print("Данные по пользователям загружены.")
 
-"""Check the availability necessary columns in file"""
-for col_name in columns_name:
-    if col_name not in df_users.columns:
-        print(f"В загруженных данных не хватает столбца {col_name}")
+
+def check_file():
+    """Check the availability necessary columns in file"""
+    for col_name in columns_name:
+        if col_name not in df_users.columns:
+            print(f"В загруженных данных не хватает столбца {col_name}")
+            return False
+
+    return True
+
 
 """Clean spam and test accounts in Users_DataFrame"""
 df_users = df_users[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
@@ -135,7 +142,6 @@ def last_authorization(year: int, user_type: str, country: str):
     df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
     df_users.fillna('', inplace=True)
 
-    last = 0
     if year is None:
         data = df_users[
             (df_users['Year'] == '') &
@@ -210,55 +216,24 @@ def last_authorization_in_app():
     os.startfile(f'last_authorization_in_app {today}.xlsx')
 
 
-def period_data(start_date, end_date, user_type, country):
-    """
-    Подсчёт кол-ва пользователей, последний раз авторизировавшихся в приложении в течение конкретного периода.
-    Параметры передаются при вызове функцией authorization_during_period.
-
-    : param start_date: Дата начала периода
-    : type start_date: str
-    : param end_date: Дата конца периода
-    : type end_date: str
-    : param user_type: Тип пользователя (дилер или монтажник)
-    : type user_type: str
-    : param country: Страна
-    : type country: str
-    : return: кол-во авторизовавшихся за период
-    : type return: int
-    """
-
-    authorization = 0
-    start = datetime(int(start_date[6:]), int(start_date[3:5]), int(start_date[:2]))
-    end = datetime(int(end_date[6:]), int(end_date[3:5]), int(end_date[:2]))
-
-    for df_country, df_user_type, email, df_last_authorization in zip(df_users['Страна'], df_users['Тип пользователя'],
-                                                                      df_users['E-Mail'],
-                                                                      df_users['Последняя авторизация в приложении']):
-        if df_last_authorization == '':
-            continue
-        else:
-            row_struct_date = time.strptime(df_last_authorization, '%d.%m.%Y %H:%M:%S')
-            row_date = time.strftime('%d.%m.%Y', row_struct_date)
-            row_date = datetime(int(row_date[6:]), int(row_date[3:5]), int(row_date[:2]))
-            if start <= row_date <= end:
-                if email not in exclude_list:
-                    if df_user_type == user_type and df_country == country:
-                        authorization += 1
-
-    return authorization
-
-
 def authorization_during_period(start_date, end_date):
     """
-    Вывод информации о кол-ве пользователей, последний раз авторизировавшихся в приложении в течение периода по странам.
-    Параметры передаются при вызове функцией main в файле start c телом основной программы.
-    
-    : param start_date: Дата начала периода
-    : type start_date: str
-    : param end_date: Дата конца периода
-    : type end_date: str
-    : return: вывод итоговой таблицы
+    information about the amount of authorized users for the period
     """
+
+    def period_data(start_date: datetime, end_date: datetime, user_type: str, country: str):
+        """
+        Counting the amount of users authorized in App during period
+        """
+
+        data = df_users[(df_users['Тип пользователя'] == user_type) &
+                        (df_users['Страна'] == country) &
+                        (df_users['Последняя авторизация в приложении'] >= start_date) &
+                        (df_users['Последняя авторизация в приложении'] <= end_date)]
+
+        authorization = len(data['ID'])
+
+        return authorization
 
     total_amount = 0
     authorization_during_period_list = []
@@ -278,9 +253,11 @@ def authorization_during_period(start_date, end_date):
     index = [i for i in range(len(authorization_during_period_list))]
     authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
 
-    with pd.ExcelWriter(f"authorization_during_period {start_date}-{end_date}.xlsx") as writer:
+    start = datetime.strftime(start_date, "%d-%m-%Y")
+    end = datetime.strftime(end_date, "%d-%m-%Y")
+    with pd.ExcelWriter(f"authorization_during_period {start}-{end}.xlsx") as writer:
         authorization_during_period_df.to_excel(writer)
-    os.startfile(f'authorization_during_period {start_date}-{end_date}.xlsx')
+    os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
 def sum_of_points(type_of_user: str, country: str):
