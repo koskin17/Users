@@ -136,30 +136,29 @@ def amount_users_by_type(country: str, user_type: str):
     return amount_of_users
 
 
-def last_authorization(year: int, user_type: str, country: str):
-    """Counting quantity of users with last authorisation in specific year."""
-
-    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-    df_users.fillna('', inplace=True)
-
-    if year is None:
-        data = df_users[
-            (df_users['Year'] == '') &
-            (df_users['Тип пользователя'] == user_type) &
-            (df_users['Страна'] == country)]
-
-        last = len(data["ID"])
-    else:
-        data = df_users[(df_users['Year'] == year) &
-                        (df_users["Тип пользователя"] == user_type) &
-                        (df_users["Страна"] == country)]
-
-        last = len(data["ID"])
-
-    return last
-
-
 def last_authorization_in_app():
+    def last_authorization(year: int, user_type: str, country: str):
+        """Counting quantity of users with last authorisation in specific year."""
+
+        df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+        df_users.fillna('', inplace=True)
+
+        if year is None:
+            data = df_users[
+                (df_users['Year'] == '') &
+                (df_users['Тип пользователя'] == user_type) &
+                (df_users['Страна'] == country)]
+
+            last = len(data["ID"])
+        else:
+            data = df_users[(df_users['Year'] == year) &
+                            (df_users["Тип пользователя"] == user_type) &
+                            (df_users["Страна"] == country)]
+
+            last = len(data["ID"])
+
+        return last
+
     """Output information about users authorized in app by years."""
 
     last_authorization_in_app_list = []
