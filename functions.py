@@ -237,15 +237,16 @@ def authorization_during_period(start_date, end_date):
     total_amount = 0
     authorization_during_period_list = []
     for country in countries:
+        amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
         authorization_during_period_list.append(
-            [country, 'Дилеры', period_data(start_date, end_date, 'Дилер', country)])
-        total_amount += period_data(start_date, end_date, 'Дилер', country)
+            [country, 'Дилеры', amount_of_dealers])
+        total_amount += amount_of_dealers
+        amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
         authorization_during_period_list.append(
-            [country, 'Монтажники', period_data(start_date, end_date, 'Монтажник', country)])
-        total_amount += period_data(start_date, end_date, 'Монтажник', country)
+            [country, 'Монтажники', amount_of_adjusters])
+        total_amount += amount_of_adjusters
         authorization_during_period_list.append(['', '', ''])
 
-    authorization_during_period_list.append(['', '', ''])
     authorization_during_period_list.append(['Всего:', '', total_amount])
 
     columns = ['Страна', 'Тип пользователей', 'Авторизировалось пользователей']
@@ -259,18 +260,17 @@ def authorization_during_period(start_date, end_date):
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
-def sum_of_points(type_of_user: str, country: str):
-    """ Count point of users by country"""
-
-    data = df_users[(df_users['Тип пользователя'] == type_of_user) &
-                    (df_users['Страна'] == country)]
-
-    points = sum(data['Баллы'])
-
-    return points
-
-
 def points_by_users_and_countries():
+    def sum_of_points(type_of_user: str, country: str):
+        """ Count point of users by country"""
+
+        data = df_users[(df_users['Тип пользователя'] == type_of_user) &
+                        (df_users['Страна'] == country)]
+
+        points = sum(data['Баллы'])
+
+        return points
+
     """Output information about points of users by countries"""
 
     points_by_users_and_countries_list = []

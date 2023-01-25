@@ -31,7 +31,6 @@ def main():
             case '2':
                 last_authorization_in_app()
             case '3':
-                # start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
                 try:
                     start_date = datetime.strptime(
                         input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
