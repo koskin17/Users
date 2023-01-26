@@ -158,30 +158,27 @@ def last_authorization_in_app():
 
         return last
 
-    """Output information about users authorized in app by years."""
+    """Information about users authorized in app by years."""
+    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+    df_users['Year'].fillna('', inplace=True)
+    years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
+    print(years)
 
     last_authorization_in_app_list = []
 
     for country in countries:
-        last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер'),
-                                               last_authorization(2019, 'Дилер', country),
-                                               last_authorization(2020, 'Дилер', country),
-                                               last_authorization(2021, 'Дилер', country),
-                                               last_authorization(2022, 'Дилер', country),
-                                               last_authorization(None, 'Дилер', country)])
+        last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер')] +
+                                                [last_authorization(year, 'Дилер', country) for year in years] +
+                                               [last_authorization(None, 'Дилер', country)])
 
     last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
     for country in countries:
-        last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник'),
-                                               last_authorization(2019, 'Монтажник', country),
-                                               last_authorization(2020, 'Монтажник', country),
-                                               last_authorization(2021, 'Монтажник', country),
-                                               last_authorization(2022, 'Монтажник', country),
-                                               last_authorization(None, 'Монтажник', country)])
+        last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
+                                               [last_authorization(year, 'Монтажник', country) for year in years] +
+                                               [last_authorization(None, 'Монтажник', country)])
 
-    columns = ['Страна', 'Тип пользователей', 'Всего в базе', 'в 2019 году', 'в 2020 году', 'в 2021 году',
-               'в 2022 году', 'Не авторизировались']
+    columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизировались']
     index = [i for i in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
