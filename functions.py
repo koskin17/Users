@@ -25,24 +25,6 @@ import time
 'Монтажник.1',
 'Комментарий'"""
 
-"""Columns for check data about users"""
-columns_name = ['ID',
-                'Баллы',
-                'Последняя авторизация в приложении',
-                'Город работы',
-                'Страна',
-                'Тип пользователя',
-                'Фамилия',
-                'Имя',
-                'Отчество',
-                'E-Mail',
-                'Город проживания']
-exclude_list = set()  # list for exclude accounts from count: test, axor and so on
-
-"""List of sings of accounts for add in exclude_list and exclude from counting"""
-exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
-                 'skalar', 'test', 'malyigor', 'ihormaly', 'axor', 'kosits']
-
 months = ['Январь',
           'Февраль',
           'Март',
@@ -66,7 +48,19 @@ df_users['Последняя авторизация в приложении'] = 
                                                                 format='%d.%m.%Y %H:%M:%S').dt.normalize()
 df_users['Баллы'].fillna(0, inplace=True)
 df_users = df_users.fillna('')
-print("Данные по пользователям загружены.")
+
+"""Columns for check data about users"""
+columns_name = ['ID',
+                'Баллы',
+                'Последняя авторизация в приложении',
+                'Город работы',
+                'Страна',
+                'Тип пользователя',
+                'Фамилия',
+                'Имя',
+                'Отчество',
+                'E-Mail',
+                'Город проживания']
 
 
 def check_file():
@@ -80,9 +74,14 @@ def check_file():
 
 
 """Clean spam and test accounts in Users_DataFrame"""
-df_users = df_users[df_users['Страна'] != '']  # exception empty row in column "Страна" as spam
+df_users = df_users[(df_users['Страна'] != '') &
+                    (df_users['Тип пользователя'] != 'Клиент')]  # exception empty row in "Страна" and 'Клиент' as spam
+print("Данные по пользователям загружены.")
 
+exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
+                 'skalar', 'test', 'malyigor', 'ihormaly', 'axor', 'kosits']  # sings of exclude account from counting
 """Creating list of excluded accounts"""
+exclude_list = set()  # list for exclude accounts from count: test, axor and so on
 for email in df_users['E-Mail']:
     for i in exclude_users:
         if i in email:
@@ -162,43 +161,18 @@ def last_authorization_in_app():
     """Output information about users authorized in app by years."""
 
     last_authorization_in_app_list = []
-    total_amount = 0
-    authorization2019 = 0
-    authorization2020 = 0
-    authorization2021 = 0
-    authorization2022 = 0
-    noneauthorization = 0
 
     for country in countries:
-        total_amount += amount_users_by_type(country, 'Дилер')
-        authorization2019 += last_authorization(2019, 'Дилер', country)
-        authorization2020 += last_authorization(2020, 'Дилер', country)
-        authorization2021 += last_authorization(2021, 'Дилер', country)
-        authorization2022 += last_authorization(2022, 'Дилер', country)
-        noneauthorization += last_authorization(None, 'Дилер', country)
-
-        last_authorization_in_app_list.append(
-            [country, 'Дилеры', amount_users_by_type(country, 'Дилер'), last_authorization(2019, 'Дилер', country),
-             last_authorization(2020, 'Дилер', country), last_authorization(2021, 'Дилер', country),
-             last_authorization(2022, 'Дилер', country), last_authorization(None, 'Дилер', country)])
+        last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер'),
+                                               last_authorization(2019, 'Дилер', country),
+                                               last_authorization(2020, 'Дилер', country),
+                                               last_authorization(2021, 'Дилер', country),
+                                               last_authorization(2022, 'Дилер', country),
+                                               last_authorization(None, 'Дилер', country)])
 
     last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
-    total_amount = 0
-    authorization2019 = 0
-    authorization2020 = 0
-    authorization2021 = 0
-    authorization2022 = 0
-    noneauthorization = 0
-
     for country in countries:
-        total_amount += amount_users_by_type(country, 'Монтажник')
-        authorization2019 += last_authorization(2019, 'Монтажник', country)
-        authorization2020 += last_authorization(2020, 'Монтажник', country)
-        authorization2021 += last_authorization(2021, 'Монтажник', country)
-        authorization2022 += last_authorization(2022, 'Монтажник', country)
-        noneauthorization += last_authorization(None, 'Монтажник', country)
-
         last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник'),
                                                last_authorization(2019, 'Монтажник', country),
                                                last_authorization(2020, 'Монтажник', country),

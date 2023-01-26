@@ -9,17 +9,18 @@ import os
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
                          converters={"ID": int, "Баллы": int})
+
 #
 # df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
 #                                                       format='%d.%m.%Y %H:%M:%S')
 #
-df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
-                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize() #dt.date
-start = datetime.strptime(input("Дата начала в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
-end = datetime.strptime(input("Дата конца в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
-data = df_users[(start <= df_users['Последняя авторизация в приложении']) &
-                (df_users['Последняя авторизация в приложении'] <= end)]
-data.to_excel('test.xlsx')
+# df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
+#                                                                 format='%d.%m.%Y %H:%M:%S').dt.normalize() #dt.date
+# start = datetime.strptime(input("Дата начала в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
+# end = datetime.strptime(input("Дата конца в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y')
+# data = df_users[(start <= df_users['Последняя авторизация в приложении']) &
+#                 (df_users['Последняя авторизация в приложении'] <= end)]
+# data.to_excel('test.xlsx')
 
 # print(start)
 # end = datetime.strptime(input("Дата конца в формате mm.dd.yyyy (через точку): "), '%d.%m.%Y').date()
