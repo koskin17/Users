@@ -4,26 +4,6 @@ from pandas import to_datetime
 from datetime import datetime, timedelta
 import time
 
-"""Columns in DataFrame about scans
-'UF_PERIOD',
-'UF_TYPE',
-'UF_POINTS',
-'UF_CODE',
-'Дилер+Монтажник',
-'UF_USER_ID',
-'UF_PROVIDED',
-'Монтажник',
-'UF_CREATED_AT',
-'UF_IN_EVENT',
-'UF_EVENT_STATUS',
-'UF_EVENT_DATE',
-'Дата',
-'Страна',
-'Месяц',
-'Год',
-'Сам себе',
-'Монтажник.1',
-'Комментарий'"""
 
 months = ['Январь',
           'Февраль',
@@ -94,6 +74,26 @@ print('Список исключаемых аккаунтов сформиров
 countries = set(df_users["Страна"])  # list of countries in DataFrame
 
 """Load data about scans"""
+"""Columns in DataFrame about scans
+'UF_PERIOD',
+'UF_TYPE',
+'UF_POINTS',
+'UF_CODE',
+'Дилер+Монтажник',
+'UF_USER_ID',
+'UF_PROVIDED',
+'Монтажник',
+'UF_CREATED_AT',
+'UF_IN_EVENT',
+'UF_EVENT_STATUS',
+'UF_EVENT_DATE',
+'Дата',
+'Страна',
+'Месяц',
+'Год',
+'Сам себе',
+'Монтажник.1',
+'Комментарий'"""
 print("Загрузка данных по сканам...")
 df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
                          converters={"UF_POINTS": int, "UF_USER_ID": int,
@@ -262,39 +262,44 @@ def points_by_users_and_countries():
     os.startfile(f'points_by_users_and_countries {today}.xlsx')
 
 
-def data_about_scan_users_in_year():
+def data_about_scan_users_in_current_year():
     def scanned_users(country: str, user_type: str, himself=True):
         """ Count amount of users scanned in current year"""
 
-        count = set()
+        # count = set()
         if himself:
             if user_type == 'Дилер':
-                for df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['UF_USER_ID'], df_scans['Страна'],
-                                                                     df_scans['Сам себе'], df_scans['Монтажник.1']):
-                    if country == df_country and user_type == df_user and df_adjuster_1 != 'Монтажник':
-                        count.add(df_ID)
+                data = df_scans[(df_scans['Страна'] == country) &
+                                (df_scans['Сам себе'] == user_type) &
+                                (df_scans['Монтажник.1'] == '')]
+
+                count = set(data['UF_USER_ID'])
+
             elif user_type == 'Монтажник':
-                for df_ID, df_country, df_user in zip(df_scans['UF_USER_ID'], df_scans['Страна'], df_scans['Сам себе']):
-                    if country == df_country and user_type == df_user:
-                        count.add(df_ID)
+                data = df_scans[(df_scans['Страна'] == country) &
+                                (df_scans['Сам себе'] == 'Монтажник')]
+
+                count = set(data['UF_USER_ID'])
+
         else:
-            for df_ID, df_country, df_adjuster_1 in zip(df_scans['Монтажник'], df_scans['Страна'],
-                                                        df_scans['Монтажник.1']):
-                if country == df_country and df_adjuster_1 == 'Монтажник':
-                    count.add(df_ID)
+            data = df_scans[(df_scans['Страна'] == country) &
+                            (df_scans['Монтажник.1'] == 'Монтажник')]
+
+            count = set(data['Монтажник'])
 
         return len(count)
 
     """Вывод данных о кол-ве сканировавших пользователей в текущем году."""
     table_about_scan_users_in_year_list = []
     for country in countries:
-        table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', scanned_users(country, 'Дилер')])
-        table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', scanned_users(country, 'Монтажник')])
-        table_about_scan_users_in_year_list.append(
-            ['', 'Монтажники', 'Сканировали дилеру', scanned_users(country, 'Монтажник', False)])
-        table_about_scan_users_in_year_list.append(['', '', 'Итого:', scanned_users(country, 'Дилер') +
-                                                    scanned_users(country, 'Монтажник') +
-                                                    scanned_users(country, 'Монтажник', False)])
+        dealers_himself = scanned_users(country, 'Дилер')
+        adjusters_himself = scanned_users(country, 'Монтажник')
+        adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
+        table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
+        table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
+        table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
+        table_about_scan_users_in_year_list.append(['', '', 'Итого:',
+                                                    dealers_himself + adjusters_himself + adjusters_for_dealers])
         table_about_scan_users_in_year_list.append(['', '', '', ''])
 
     columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
