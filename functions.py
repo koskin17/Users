@@ -162,21 +162,20 @@ def last_authorization_in_app():
     df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
     df_users['Year'].fillna('', inplace=True)
     years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
-    print(years)
 
     last_authorization_in_app_list = []
 
     for country in countries:
         last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер')] +
-                                                [last_authorization(year, 'Дилер', country) for year in years] +
-                                               [last_authorization(None, 'Дилер', country)])
+                                              [last_authorization(year, 'Дилер', country) for year in years] +
+                                              [last_authorization(None, 'Дилер', country)])
 
     last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
     for country in countries:
         last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
-                                               [last_authorization(year, 'Монтажник', country) for year in years] +
-                                               [last_authorization(None, 'Монтажник', country)])
+                                              [last_authorization(year, 'Монтажник', country) for year in years] +
+                                              [last_authorization(None, 'Монтажник', country)])
 
     columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизировались']
     index = [i for i in range(len(last_authorization_in_app_list))]
@@ -209,12 +208,10 @@ def authorization_during_period(start_date, end_date):
     authorization_during_period_list = []
     for country in countries:
         amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
-        authorization_during_period_list.append(
-            [country, 'Дилеры', amount_of_dealers])
+        authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
         total_amount += amount_of_dealers
         amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
-        authorization_during_period_list.append(
-            [country, 'Монтажники', amount_of_adjusters])
+        authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
         total_amount += amount_of_adjusters
         authorization_during_period_list.append(['', '', ''])
 
@@ -242,7 +239,7 @@ def points_by_users_and_countries():
 
         return points
 
-    """Output information about points of users by countries"""
+    """Information about points of users by countries"""
 
     points_by_users_and_countries_list = []
     for country in countries:
@@ -265,9 +262,30 @@ def points_by_users_and_countries():
     os.startfile(f'points_by_users_and_countries {today}.xlsx')
 
 
-def table_about_scan_users_in_year():
-    """Вывод данных о кол-ве сканировавших пользователей в текущем году."""
+def data_about_scan_users_in_year():
+    def scanned_users(country: str, user_type: str, himself=True):
+        """ Count amount of users scanned in current year"""
 
+        count = set()
+        if himself:
+            if user_type == 'Дилер':
+                for df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['UF_USER_ID'], df_scans['Страна'],
+                                                                     df_scans['Сам себе'], df_scans['Монтажник.1']):
+                    if country == df_country and user_type == df_user and df_adjuster_1 != 'Монтажник':
+                        count.add(df_ID)
+            elif user_type == 'Монтажник':
+                for df_ID, df_country, df_user in zip(df_scans['UF_USER_ID'], df_scans['Страна'], df_scans['Сам себе']):
+                    if country == df_country and user_type == df_user:
+                        count.add(df_ID)
+        else:
+            for df_ID, df_country, df_adjuster_1 in zip(df_scans['Монтажник'], df_scans['Страна'],
+                                                        df_scans['Монтажник.1']):
+                if country == df_country and df_adjuster_1 == 'Монтажник':
+                    count.add(df_ID)
+
+        return len(count)
+
+    """Вывод данных о кол-ве сканировавших пользователей в текущем году."""
     table_about_scan_users_in_year_list = []
     for country in countries:
         table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', scanned_users(country, 'Дилер')])
@@ -286,32 +304,6 @@ def table_about_scan_users_in_year():
     with pd.ExcelWriter(f"table_about_scan_users_in_year {today}.xlsx") as writer:
         table_about_scan_users_in_year_df.to_excel(writer)
     os.startfile(f'table_about_scan_users_in_year {today}.xlsx')
-
-
-def scanned_users(country: str, user_type: str, himself=True):
-    """
-    Подсчёт общего кол-ва сканировавших пользователей в текущем году.
-    Функция вызывается при построении таблицы функцией table_about_scan_users_in_year.
-    Параметры передаются функцией table_about_scan_users_in_year.
-    """
-
-    count = set()
-    if himself:
-        if user_type == 'Дилер':
-            for df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['UF_USER_ID'], df_scans['Страна'],
-                                                                 df_scans['Сам себе'], df_scans['Монтажник.1']):
-                if country == df_country and user_type == df_user and df_adjuster_1 != 'Монтажник':
-                    count.add(df_ID)
-        elif user_type == 'Монтажник':
-            for df_ID, df_country, df_user in zip(df_scans['UF_USER_ID'], df_scans['Страна'], df_scans['Сам себе']):
-                if country == df_country and user_type == df_user:
-                    count.add(df_ID)
-    else:
-        for df_ID, df_country, df_adjuster_1 in zip(df_scans['Монтажник'], df_scans['Страна'], df_scans['Монтажник.1']):
-            if country == df_country and df_adjuster_1 == 'Монтажник':
-                count.add(df_ID)
-
-    return len(count)
 
 
 def total_amount_of_points_for_year(country, user_type):

@@ -45,7 +45,7 @@ def main():
             case '4':
                 points_by_users_and_countries()
             case '5':
-                table_about_scan_users_in_year()
+                data_about_scan_users_in_year()
             case '6':
                 data_about_points()
             case '7':
