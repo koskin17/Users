@@ -335,17 +335,15 @@ def total_amount_of_points_for_year(country, user_type):
 
 
 def data_about_points():
-    """
-    Вывод данных по насканированным баллам.
-    """
+    """ Output data about balls """
 
     data_about_points_lst = []
     for country in countries:
-
-        data_about_points_lst.append([country, 'Дилеры', total_amount_of_points_for_year(country, 'Дилер')])
-        data_about_points_lst.append(['', 'Монтажники', total_amount_of_points_for_year(country, 'Монтажник')])
-        data_about_points_lst.append(['', 'Итого:', total_amount_of_points_for_year(country, 'Дилер') +
-                                      total_amount_of_points_for_year(country, 'Монтажник')])
+        point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
+        points_of_adjusters = total_amount_of_points_for_year(country, 'Монтажник')
+        data_about_points_lst.append([country, 'Дилеры', point_of_dealers])
+        data_about_points_lst.append(['', 'Монтажники', points_of_adjusters])
+        data_about_points_lst.append(['', 'Итого:', point_of_dealers + points_of_adjusters])
         data_about_points_lst.append(['', '', ''])
 
     columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
