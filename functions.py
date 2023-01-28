@@ -312,29 +312,18 @@ def data_about_scan_users_in_current_year():
 
 
 def total_amount_of_points_for_year(country, user_type):
-    """
-    Подсчёт общей суммы насканированных баллов за год.
-    Параметры передаются при вызове функцией data_about_points.
-
-    : param county: Страна
-    : type country: str
-    : param user_type: тип пользователя (дилер или монтажник)
-    : type user_type: str
-    : return: кол-во баллов
-    : type return: int 
-    """
-
-    amount_of_points = 0
+    """Count the sum of balls scanned in current year"""
 
     if user_type == 'Дилер':
-        for df_country, df_points, df_user, df_adjuster_1 in zip(df_scans['Страна'], df_scans['UF_POINTS'],
-                                                                 df_scans['Сам себе'], df_scans['Монтажник.1']):
-            if df_country == country and df_user == user_type and df_adjuster_1 != 'Монтажник':
-                amount_of_points += int(df_points)
-        for df_country, df_points, df_user, df_adjuster_1 in zip(df_scans['Страна'], df_scans['UF_POINTS'],
-                                                                 df_scans['Сам себе'], df_scans['Монтажник.1']):
-            if country == df_country and user_type == df_user and df_adjuster_1 == 'Монтажник':
-                amount_of_points += int(df_points)
+        data = df_scans[(df_scans['Страна'] == country) &
+                        (df_scans['Сам себе'] == user_type)]
+
+        amount_of_points = sum(data['US_POINTS'])
+
+        # for df_country, df_points, df_user, df_adjuster_1 in zip(df_scans['Страна'], df_scans['UF_POINTS'],
+        #                                                          df_scans['Сам себе'], df_scans['Монтажник.1']):
+        #     if df_country == country and df_user == user_type and df_adjuster_1 != 'Монтажник':
+        #         amount_of_points += int(df_points)
 
     elif user_type == 'Монтажник':
         for df_country, df_points, df_user in zip(df_scans['Страна'], df_scans['UF_POINTS'], df_scans['Сам себе']):
