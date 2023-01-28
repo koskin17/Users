@@ -625,7 +625,7 @@ def data_about_scans_during_period(start_date, end_date):
 
 def table_scanned_users_by_months():
     def data_scanned_users_by_month(country, month, user_type, himself=True):
-        """ Count amount of scanned users by month """
+        """ Count amount of scanned users in month """
 
         if himself:
             if user_type == 'Дилер':
@@ -706,7 +706,8 @@ def table_scanned_users_by_months():
 
         scanned_users_by_months_list.append(['', '', ''])
 
-    index = [i for i in range(len(scanned_users_by_months_list))]
+    print(scanned_users_by_months_list)
+    index = [_ for _ in range(len(scanned_users_by_months_list))]
     scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
 
     with pd.ExcelWriter(f"table_scanned_users_by_months {today}.xlsx") as writer:
