@@ -4,7 +4,6 @@ from pandas import to_datetime
 from datetime import datetime, timedelta
 import time
 
-
 print("Загрузка данных по пользователям...")
 
 """Load data about users"""
@@ -624,52 +623,35 @@ def data_about_scans_during_period(start_date, end_date):
     os.startfile(f'data_about_scans_during_period_{start_date}-{end_date}.xlsx')
 
 
-def data_scanned_users_by_month(country, month, user_type, himself=True):
-    """
-    Подсчёт кол-ва сканировавших пользователей по месяцам.
-    Параметры передаются при вызове функцией table_scanned_users_by_months.
-    
-    : param country: Страна
-    : type counry: str
-    : param month: месяц
-    : type month: str
-    : param user_type: Тип пользователя (диле или монтажник)
-    : type user_type: str
-    : param himself: Пользователь сканировал QR-код сам себе
-    : type himself: boolean
-    : return: кол-во пользователей за месяц
-    : type return: int
-    """
-
-    count = set()
-    if himself:
-        if user_type == 'Дилер':
-            for df_month_of_scan, df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['Месяц'],
-                                                                                   df_scans['UF_USER_ID'],
-                                                                                   df_scans['Страна'],
-                                                                                   df_scans['Сам себе'],
-                                                                                   df_scans['Монтажник.1']):
-                if df_month_of_scan == month:
-                    if country == df_country and user_type == df_user and df_adjuster_1 != 'Монтажник':
-                        count.add(df_ID)
-
-        elif user_type == 'Монтажник':
-            for df_month_of_scan, df_ID, df_country, df_user in zip(df_scans['Месяц'], df_scans['UF_USER_ID'],
-                                                                    df_scans['Страна'], df_scans['Сам себе']):
-                if df_month_of_scan == month:
-                    if country == df_country and user_type == df_user:
-                        count.add(df_ID)
-    else:
-        for df_month_of_scan, df_ID, df_country, df_adjuster_1 in zip(df_scans['Месяц'], df_scans['Монтажник'],
-                                                                      df_scans['Страна'], df_scans['Монтажник.1']):
-            if df_month_of_scan == month:
-                if country == df_country and df_adjuster_1 == 'Монтажник':
-                    count.add(df_ID)
-
-    return len(count)
-
-
 def table_scanned_users_by_months():
+    def data_scanned_users_by_month(country, month, user_type, himself=True):
+        """ Count amount of scanned users by month """
+
+        if himself:
+            if user_type == 'Дилер':
+                data = df_scans[(df_scans['Месяц'] == month) &
+                                (df_scans['Страна'] == country) &
+                                (df_scans['Сам себе'] == user_type) &
+                                (df_scans['Монтажник.1'] == '')]
+
+                amount = len(set(data['UF_USER_ID']))
+
+            elif user_type == 'Монтажник':
+                data = df_scans[(df_scans['Месяц'] == month) &
+                                (df_scans['Страна'] == country) &
+                                (df_scans['Сам себе'] == user_type)]
+
+                amount = len(set(data['UF_USER_ID']))
+
+        else:
+            data = df_scans[(df_scans['Месяц'] == month) &
+                            (df_scans['Страна'] == country) &
+                            (df_scans['Монтажник.1'] == 'Монтажник')]
+
+            amount = len(set(data['Монтажник']))
+
+        return amount
+
     """
     Вывод таблицы по кол-ву сканировавших пользователей по странам и месяцам.
     """
