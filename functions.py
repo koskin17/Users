@@ -5,19 +5,6 @@ from datetime import datetime, timedelta
 import time
 
 
-months = ['Январь',
-          'Февраль',
-          'Март',
-          'Апрель',
-          'Май',
-          'Июнь',
-          'Июль',
-          'Август',
-          'Сентябрь',
-          'Октябрь',
-          'Ноябрь',
-          'Декабрь']
-
 print("Загрузка данных по пользователям...")
 
 """Load data about users"""
@@ -311,32 +298,30 @@ def data_about_scan_users_in_current_year():
     os.startfile(f'table_about_scan_users_in_year {today}.xlsx')
 
 
-def total_amount_of_points_for_year(country, user_type):
-    """Count the sum of balls scanned in current year"""
-
-    if user_type == 'Дилер':
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Сам себе'] == user_type)]
-
-        amount_of_points = sum(data['UF_POINTS'])
-
-    elif user_type == 'Монтажник':
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Сам себе'] == user_type)]
-
-        amount_of_points = sum(data['UF_POINTS'])
-
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Монтажник.1'] == 'Монтажник')]
-
-        amount_of_points += sum(data['UF_POINTS'])
-
-    return amount_of_points
-
-
 def data_about_points():
-    """ Output data about balls """
+    def total_amount_of_points_for_year(country, user_type):
+        """Count the sum of balls scanned in current year"""
 
+        if user_type == 'Дилер':
+            data = df_scans[(df_scans['Страна'] == country) &
+                            (df_scans['Сам себе'] == user_type)]
+
+            amount_of_points = sum(data['UF_POINTS'])
+
+        elif user_type == 'Монтажник':
+            data = df_scans[(df_scans['Страна'] == country) &
+                            (df_scans['Сам себе'] == user_type)]
+
+            amount_of_points = sum(data['UF_POINTS'])
+
+            data = df_scans[(df_scans['Страна'] == country) &
+                            (df_scans['Монтажник.1'] == 'Монтажник')]
+
+            amount_of_points += sum(data['UF_POINTS'])
+
+        return amount_of_points
+
+    """ Output data about points """
     data_about_points_lst = []
     for country in countries:
         point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
@@ -641,7 +626,7 @@ def data_about_scans_during_period(start_date, end_date):
 
 def data_scanned_users_by_month(country, month, user_type, himself=True):
     """
-    Пдсчёт кол-ва сканировавших пользователей по месяцам.
+    Подсчёт кол-ва сканировавших пользователей по месяцам.
     Параметры передаются при вызове функцией table_scanned_users_by_months.
     
     : param country: Страна
@@ -690,9 +675,19 @@ def table_scanned_users_by_months():
     """
 
     scanned_users_by_months_list = []
-    columns = ['Страна', 'Тип пользователей', 'Сканировали']
-    for month in months:
-        columns.append(month)
+    months = ['Январь',
+              'Февраль',
+              'Март',
+              'Апрель',
+              'Май',
+              'Июнь',
+              'Июль',
+              'Август',
+              'Сентябрь',
+              'Октябрь',
+              'Ноябрь',
+              'Декабрь']
+    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
 
     for country in countries:
         part1 = [country, 'Дилеры', 'Сами себе']

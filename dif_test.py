@@ -6,9 +6,23 @@ import pandas as pd
 from pandas import to_datetime
 import os
 
-df_users = pd.read_excel('user_admin.xlsx',
-                         na_values="NA",
-                         converters={"ID": int, "Баллы": int})
+# df_users = pd.read_excel('user_admin.xlsx',
+#                          na_values="NA",
+#                          converters={"ID": int, "Баллы": int})
+months = ['Январь',
+          'Февраль',
+          'Март',
+          'Апрель',
+          'Май',
+          'Июнь',
+          'Июль',
+          'Август',
+          'Сентябрь',
+          'Октябрь',
+          'Ноябрь',
+          'Декабрь']
+columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
+print(columns)
 
 #
 # df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
