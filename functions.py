@@ -341,6 +341,7 @@ def data_about_points():
 
     data_about_points_lst = []
     for country in countries:
+
         data_about_points_lst.append([country, 'Дилеры', total_amount_of_points_for_year(country, 'Дилер')])
         data_about_points_lst.append(['', 'Монтажники', total_amount_of_points_for_year(country, 'Монтажник')])
         data_about_points_lst.append(['', 'Итого:', total_amount_of_points_for_year(country, 'Дилер') +
