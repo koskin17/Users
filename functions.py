@@ -624,6 +624,7 @@ def data_about_scans_during_period(start_date, end_date):
 
 
 def scanned_users_by_months():
+    """ Information about scabbed users by country in each month """
     months = ['Январь',
               'Февраль',
               'Март',
@@ -666,17 +667,12 @@ def scanned_users_by_months():
 
         return dealers_himself, adjusters_himself, adjusters_for_dealer
 
-    """
-    Вывод таблицы по кол-ву сканировавших пользователей по странам и месяцам.
-    """
-
     scanned_users_by_months_list = []
 
     columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
 
     for country in countries:
         scanned_users_by_months_list += amount_scanned_users_in_month(country)
-
         scanned_users_by_months_list.append(['', '', ''])
 
     index = [_ for _ in range(len(scanned_users_by_months_list))]
