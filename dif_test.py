@@ -21,8 +21,9 @@ months = ['Январь',
           'Октябрь',
           'Ноябрь',
           'Декабрь']
-columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
-print(columns)
+
+summary_line = ['', '', 'Итого:'] + [month for month in months]
+print(summary_line)
 
 #
 # df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],

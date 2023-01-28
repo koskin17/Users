@@ -50,19 +50,19 @@ def main():
                 data_about_points()
             case '7':
                 country_list = {}
-                for i in range(len(countries)):
-                    print(i, ' - ', countries[i])
-                    country_list[i] = countries[i]
-                    i += 1
+                for _ in range(len(countries)):
+                    print(_, ' - ', countries[_])
+                    country_list[_] = countries[_]
+                    _ += 1
 
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Дилер')
             case '8':
                 country_list = {}
-                for i in range(len(countries)):
-                    print(i, ' - ', countries[i])
-                    country_list[i] = countries[i]
-                    i += 1
+                for _ in range(len(countries)):
+                    print(_, ' - ', countries[_])
+                    country_list[_] = countries[_]
+                    _ += 1
 
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Монтажник')
@@ -81,7 +81,7 @@ def main():
                 except ValueError:
                     print('Дата введена неверно!')
             case '10':
-                table_scanned_users_by_months()
+                scanned_users_by_months()
             case 'q':
                 finish()
 

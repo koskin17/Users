@@ -292,9 +292,9 @@ def data_about_scan_users_in_current_year():
     index = [i for i in range(len(table_about_scan_users_in_year_list))]
     table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
-    with pd.ExcelWriter(f"table_about_scan_users_in_year {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"scanned_users_in_year {today}.xlsx") as writer:
         table_about_scan_users_in_year_df.to_excel(writer)
-    os.startfile(f'table_about_scan_users_in_year {today}.xlsx')
+    os.startfile(f'scanned_users_in_year {today}.xlsx')
 
 
 def data_about_points():
@@ -334,9 +334,9 @@ def data_about_points():
     index = [i for i in range(len(data_about_points_lst))]
     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
 
-    with pd.ExcelWriter(f"data_about_points {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"all_points_of_users_by_country {today}.xlsx") as writer:
         data_about_points_df.to_excel(writer)
-    os.startfile(f'data_about_points {today}.xlsx')
+    os.startfile(f'all_points_of_users_by_country {today}.xlsx')
 
 
 def sum_of_points_per_period(country, user_type, start_date, end_date, himself=True):
@@ -432,7 +432,7 @@ def top_users_by_scans(country, user_type):
         top_users_by_scans_list.append(['Итого:', '', sum(top_users.values())])
 
         columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
-        index = [i for i in range(len(top_users_by_scans_list))]
+        index = [_ for _ in range(len(top_users_by_scans_list))]
         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_list, index, columns)
 
         with pd.ExcelWriter(f"top_dealers_by_scans_in_{country} {today}.xlsx") as writer:
@@ -623,40 +623,7 @@ def data_about_scans_during_period(start_date, end_date):
     os.startfile(f'data_about_scans_during_period_{start_date}-{end_date}.xlsx')
 
 
-def table_scanned_users_by_months():
-    def data_scanned_users_by_month(country, month, user_type, himself=True):
-        """ Count amount of scanned users in month """
-
-        if himself:
-            if user_type == 'Дилер':
-                data = df_scans[(df_scans['Месяц'] == month) &
-                                (df_scans['Страна'] == country) &
-                                (df_scans['Сам себе'] == user_type) &
-                                (df_scans['Монтажник.1'] == '')]
-
-                amount = len(set(data['UF_USER_ID']))
-
-            elif user_type == 'Монтажник':
-                data = df_scans[(df_scans['Месяц'] == month) &
-                                (df_scans['Страна'] == country) &
-                                (df_scans['Сам себе'] == user_type)]
-
-                amount = len(set(data['UF_USER_ID']))
-
-        else:
-            data = df_scans[(df_scans['Месяц'] == month) &
-                            (df_scans['Страна'] == country) &
-                            (df_scans['Монтажник.1'] == 'Монтажник')]
-
-            amount = len(set(data['Монтажник']))
-
-        return amount
-
-    """
-    Вывод таблицы по кол-ву сканировавших пользователей по странам и месяцам.
-    """
-
-    scanned_users_by_months_list = []
+def scanned_users_by_months():
     months = ['Январь',
               'Февраль',
               'Март',
@@ -669,50 +636,57 @@ def table_scanned_users_by_months():
               'Октябрь',
               'Ноябрь',
               'Декабрь']
+
+    def amount_scanned_users_in_month(country):
+        """ Count amount of scanned users in month """
+
+        dealers_himself = [country, 'Дилеры', 'Сами себе']
+        adjusters_himself = ['', 'Монтажники', 'Сами себе']
+        adjusters_for_dealer = ['', 'Монтажники', 'Сканировали дилеру']
+
+        for month in months:
+            data = df_scans[(df_scans['Месяц'] == month) &
+                            (df_scans['Страна'] == country) &
+                            (df_scans['Сам себе'] == 'Дилер') &
+                            (df_scans['Монтажник.1'] == '')]
+
+            dealers_himself.append(len(set(data['UF_USER_ID'])))
+
+            data = df_scans[(df_scans['Месяц'] == month) &
+                            (df_scans['Страна'] == country) &
+                            (df_scans['Сам себе'] == 'Монтажник')]
+
+            adjusters_himself.append(len(set(data['UF_USER_ID'])))
+
+            data = df_scans[(df_scans['Месяц'] == month) &
+                            (df_scans['Страна'] == country) &
+                            (df_scans['Монтажник.1'] == 'Монтажник')]
+
+            adjusters_for_dealer.append(len(set(data['Монтажник'])))
+
+        return dealers_himself, adjusters_himself, adjusters_for_dealer
+
+    """
+    Вывод таблицы по кол-ву сканировавших пользователей по странам и месяцам.
+    """
+
+    scanned_users_by_months_list = []
+
     columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
 
     for country in countries:
-        part1 = [country, 'Дилеры', 'Сами себе']
-        scanned_users_by_month = []
-        for month in months:
-            scanned_users_by_month.append(data_scanned_users_by_month(country, month, 'Дилер', himself=True))
-
-        scanned_users_by_months_list.append(part1 + scanned_users_by_month)
-
-        part2 = ['', 'Монтажники', 'Сами себе']
-        scanned_users_by_month = []
-        for month in months:
-            scanned_users_by_month.append(data_scanned_users_by_month(country, month, 'Монтажник', himself=True))
-
-        scanned_users_by_months_list.append(part2 + scanned_users_by_month)
-
-        part3 = ['', 'Монтажники', 'Сканировали дилеру']
-        scanned_users_by_month = []
-        for month in months:
-            scanned_users_by_month.append(data_scanned_users_by_month(country, month, 'Монтажник', himself=False))
-
-        scanned_users_by_months_list.append(part3 + scanned_users_by_month)
-
-        part4 = ['', '', 'Итого:']
-        scanned_users_by_month = []
-        for month in months:
-            scanned_users_by_month.append(
-                data_scanned_users_by_month(country, month, 'Дилер', himself=True) + data_scanned_users_by_month(
-                    country, month, 'Монтажник', himself=True) + data_scanned_users_by_month(country, month,
-                                                                                             'Монтажник',
-                                                                                             himself=False))
-
-        scanned_users_by_months_list.append(part4 + scanned_users_by_month)
+        scanned_users_by_months_list += amount_scanned_users_in_month(country)
 
         scanned_users_by_months_list.append(['', '', ''])
 
-    print(scanned_users_by_months_list)
     index = [_ for _ in range(len(scanned_users_by_months_list))]
     scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
+    summary_line = ['', '', 'Итого:'] + [int(scanned_users_by_months_df[month].sum()) for month in months]
+    scanned_users_by_months_df.loc[len(scanned_users_by_months_df.index)] = summary_line
 
-    with pd.ExcelWriter(f"table_scanned_users_by_months {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"scanned_users_by_months {today}.xlsx") as writer:
         scanned_users_by_months_df.to_excel(writer)
-    os.startfile(f'table_scanned_users_by_months {today}.xlsx')
+    os.startfile(f'scanned_users_by_months {today}.xlsx')
 
 
 def finish():
