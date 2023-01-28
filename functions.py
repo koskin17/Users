@@ -666,6 +666,8 @@ def scanned_users_by_months():
             adjusters_for_dealer.append(len(set(data['Монтажник'])))
 
         return dealers_himself, adjusters_himself, adjusters_for_dealer
+    # TODO insert code from amount_scanned_users_in_month function in scanned_users_by_months function
+    # TODO add string about total users in each country by month
 
     scanned_users_by_months_list = []
 
