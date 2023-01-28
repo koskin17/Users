@@ -318,21 +318,18 @@ def total_amount_of_points_for_year(country, user_type):
         data = df_scans[(df_scans['Страна'] == country) &
                         (df_scans['Сам себе'] == user_type)]
 
-        amount_of_points = sum(data['US_POINTS'])
-
-        # for df_country, df_points, df_user, df_adjuster_1 in zip(df_scans['Страна'], df_scans['UF_POINTS'],
-        #                                                          df_scans['Сам себе'], df_scans['Монтажник.1']):
-        #     if df_country == country and df_user == user_type and df_adjuster_1 != 'Монтажник':
-        #         amount_of_points += int(df_points)
+        amount_of_points = sum(data['UF_POINTS'])
 
     elif user_type == 'Монтажник':
-        for df_country, df_points, df_user in zip(df_scans['Страна'], df_scans['UF_POINTS'], df_scans['Сам себе']):
-            if df_country == country and df_user == user_type:
-                amount_of_points += int(df_points)
-        for df_country, df_points, df_adjuster_1 in zip(df_scans['Страна'], df_scans['UF_POINTS'],
-                                                        df_scans['Монтажник.1']):
-            if country == df_country and df_adjuster_1 == 'Монтажник':
-                amount_of_points += int(df_points)
+        data = df_scans[(df_scans['Страна'] == country) &
+                        (df_scans['Сам себе'] == user_type)]
+
+        amount_of_points = sum(data['UF_POINTS'])
+
+        data = df_scans[(df_scans['Страна'] == country) &
+                        (df_scans['Монтажник.1'] == 'Монтажник')]
+
+        amount_of_points += sum(data['UF_POINTS'])
 
     return amount_of_points
 
