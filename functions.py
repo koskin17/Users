@@ -462,7 +462,7 @@ def top_users_by_scans(country, user_type):
         top_users_by_scans_list.append(['Итого:', '', sum(top_users.values())])
 
         columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
-        index = [i for i in range(len(top_users_by_scans_list))]
+        index = [_ for _ in range(len(top_users_by_scans_list))]
         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_list, index, columns)
 
         with pd.ExcelWriter(f"top_adjusters_by_scans_in_{country} {today}.xlsx") as writer:
@@ -624,7 +624,7 @@ def data_about_scans_during_period(start_date, end_date):
 
 
 def scanned_users_by_months():
-    """ Information about scabbed users by country in each month """
+    """ Information about scanned users by country in each month """
     months = ['Январь',
               'Февраль',
               'Март',
@@ -638,49 +638,47 @@ def scanned_users_by_months():
               'Ноябрь',
               'Декабрь']
 
-    def amount_scanned_users_in_month(country):
-        """ Count amount of scanned users in month """
+    scanned_users_by_months_list = []
+    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
 
+    for country in countries:
         dealers_himself = [country, 'Дилеры', 'Сами себе']
         adjusters_himself = ['', 'Монтажники', 'Сами себе']
-        adjusters_for_dealer = ['', 'Монтажники', 'Сканировали дилеру']
-
+        adjusters_for_dealers = ['', 'Монтажники', 'Сканировали дилеру']
+        total_users_in_country = ['', '', 'Итого:']
         for month in months:
             data = df_scans[(df_scans['Месяц'] == month) &
                             (df_scans['Страна'] == country) &
                             (df_scans['Сам себе'] == 'Дилер') &
                             (df_scans['Монтажник.1'] == '')]
 
-            dealers_himself.append(len(set(data['UF_USER_ID'])))
+            d_h = len(set(data['UF_USER_ID']))
+            dealers_himself.append(d_h)
 
             data = df_scans[(df_scans['Месяц'] == month) &
                             (df_scans['Страна'] == country) &
                             (df_scans['Сам себе'] == 'Монтажник')]
 
-            adjusters_himself.append(len(set(data['UF_USER_ID'])))
+            a_h = len(set(data['UF_USER_ID']))
+            adjusters_himself.append(a_h)
 
             data = df_scans[(df_scans['Месяц'] == month) &
                             (df_scans['Страна'] == country) &
                             (df_scans['Монтажник.1'] == 'Монтажник')]
 
-            adjusters_for_dealer.append(len(set(data['Монтажник'])))
+            a_d = len(set(data['Монтажник']))
+            adjusters_for_dealers.append(a_d)
 
-        return dealers_himself, adjusters_himself, adjusters_for_dealer
-    # TODO insert code from amount_scanned_users_in_month function in scanned_users_by_months function
-    # TODO add string about total users in each country by month
+            total_users_in_country.append(d_h + a_h + a_d)
 
-    scanned_users_by_months_list = []
-
-    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
-
-    for country in countries:
-        scanned_users_by_months_list += amount_scanned_users_in_month(country)
+        scanned_users_by_months_list.append(dealers_himself)
+        scanned_users_by_months_list.append(adjusters_himself)
+        scanned_users_by_months_list.append(adjusters_for_dealers)
+        scanned_users_by_months_list.append(total_users_in_country)
         scanned_users_by_months_list.append(['', '', ''])
 
     index = [_ for _ in range(len(scanned_users_by_months_list))]
     scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
-    summary_line = ['', '', 'Итого:'] + [int(scanned_users_by_months_df[month].sum()) for month in months]
-    scanned_users_by_months_df.loc[len(scanned_users_by_months_df.index)] = summary_line
 
     with pd.ExcelWriter(f"scanned_users_by_months {today}.xlsx") as writer:
         scanned_users_by_months_df.to_excel(writer)
