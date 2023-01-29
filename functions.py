@@ -215,6 +215,7 @@ def authorization_during_period(start_date, end_date):
 
 
 def points_by_users_and_countries():
+    # TODO unit code "sum_of_points" with "points_by_users_and_countries" function
     def sum_of_points(type_of_user: str, country: str):
         """ Count point of users by country"""
 
@@ -249,6 +250,7 @@ def points_by_users_and_countries():
 
 
 def data_about_scan_users_in_current_year():
+    # TODO unit code "scanned_users" with "data_about_scan_users_in_current_year" function
     def scanned_users(country: str, user_type: str, himself=True):
         """ Count amount of users scanned in current year"""
 
@@ -298,6 +300,7 @@ def data_about_scan_users_in_current_year():
 
 
 def data_about_points():
+    # TODO unit code "total_amount_of_points_for_year" with "data_about_points" function
     def total_amount_of_points_for_year(country, user_type):
         """Count the sum of balls scanned in current year"""
 
