@@ -209,6 +209,7 @@ def authorization_during_period(start_date, end_date):
 
 
 def points_by_users_and_countries():
+    """ Information about points by users and countries """
     def sum_of_points(type_of_user: str, country: str):
         """ Count point of users by country"""
 
@@ -243,6 +244,7 @@ def points_by_users_and_countries():
 
 
 def data_about_scan_users_in_current_year():
+    """ Information about scanned users in current year """
     def scanned_users(country: str, user_type: str, himself=True):
         """ Count amount of users scanned in current year"""
 
@@ -292,8 +294,9 @@ def data_about_scan_users_in_current_year():
 
 
 def data_about_points():
+    """ Information about sum of points scanned in current year """
     def total_amount_of_points_for_year(country, user_type):
-        """Count the sum of balls scanned in current year"""
+        """Count the sum of points scanned in current year"""
 
         if user_type == 'Дилер':
             data = df_scans[(df_scans['Страна'] == country) &
