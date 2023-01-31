@@ -6,25 +6,44 @@ import pandas as pd
 from pandas import to_datetime
 import os
 
+df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
+                         usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
+                                  'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
+                                  'Монтажник.1'],
+                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int,
+                                     "UF_CREATED_AT": to_datetime})
+
+df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
+df_scans = df_scans.fillna('')
+months = {1: 'Январь',
+          2: 'Февраль',
+          3: 'Март',
+          4: 'Апрель',
+          5: 'Май',
+          6: 'Июнь',
+          7: 'Июль',
+          8: 'Август',
+          9: 'Сентябрь',
+          10: 'Октябрь',
+          11: 'Ноябрь',
+          12: 'Декабрь'}
+
+df_scans['Месяц'] = df_scans['UF_CREATED_AT'].dt.month.map(months)
+print(df_scans['Месяц'])
+
+
+
 # df_users = pd.read_excel('user_admin.xlsx',
+#                          usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+#                                   'Страна', 'Тип пользователя', 'Фамилия', 'Имя',
+#                                   'Отчество', 'E-Mail'],
 #                          na_values="NA",
 #                          converters={"ID": int, "Баллы": int})
-months = ['Январь',
-          'Февраль',
-          'Март',
-          'Апрель',
-          'Май',
-          'Июнь',
-          'Июль',
-          'Август',
-          'Сентябрь',
-          'Октябрь',
-          'Ноябрь',
-          'Декабрь']
 
-summary_line = ['', '', 'Итого:'] + [month for month in months]
-print(summary_line)
-
+# print(df_users.columns)
+# df_users = df_users[['ID', 'Баллы', 'Последняя авторизация в приложении',
+#                     'Страна', 'Тип пользователя', 'Фамилия', 'Имя',
+#                     'Отчество', 'E-Mail']]
 #
 # df_users['Авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
 #                                                       format='%d.%m.%Y %H:%M:%S')

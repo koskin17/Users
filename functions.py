@@ -9,6 +9,9 @@ print("Загрузка данных по пользователям...")
 """Load data about users"""
 df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
+                         usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+                                  'Страна', 'Город работы', 'Тип пользователя',
+                                  'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
                          converters={"ID": int, "Баллы": int})
 df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
                                                                 format='%d.%m.%Y %H:%M:%S').dt.normalize()
@@ -25,8 +28,7 @@ columns_name = ['ID',
                 'Фамилия',
                 'Имя',
                 'Отчество',
-                'E-Mail',
-                'Город проживания']
+                'E-Mail']
 
 
 def check_file():
@@ -57,37 +59,30 @@ for email in df_users['E-Mail']:
 df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
 print('Список исключаемых аккаунтов сформирован.')
 
-countries = set(df_users["Страна"])  # list of countries in DataFrame
+countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
 
-"""Load data about scans"""
 """Columns in DataFrame about scans
-'UF_PERIOD',
 'UF_TYPE',
 'UF_POINTS',
-'UF_CODE',
 'Дилер+Монтажник',
 'UF_USER_ID',
-'UF_PROVIDED',
 'Монтажник',
 'UF_CREATED_AT',
-'UF_IN_EVENT',
-'UF_EVENT_STATUS',
-'UF_EVENT_DATE',
-'Дата',
 'Страна',
-'Месяц',
-'Год',
 'Сам себе',
-'Монтажник.1',
-'Комментарий'"""
+'Монтажник.1'"""
 print("Загрузка данных по сканам...")
 df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
-                         converters={"UF_POINTS": int, "UF_USER_ID": int,
+                         usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
+                                  'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
+                                  'Монтажник.1'],
+                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int,
                                      "UF_CREATED_AT": to_datetime})
+
+df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
 df_scans = df_scans.fillna('')
 
 surname = {}  # list for surnames
-today = datetime.now().date()
 
 
 def total_stat():
@@ -108,8 +103,8 @@ def total_stat():
     index_for_df = range(len(list_for_df))
     total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
                                                                                         ascending=False)
-    total_stat_df.to_excel(f"total_stats_about_users_for_{today}.xlsx")
-    os.startfile(f'total_stats_about_users_for_{today}.xlsx')
+    total_stat_df.to_excel(f"total_stats_about_users_for_{datetime.now().date()}.xlsx")
+    os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
 
 def amount_users_by_type(country: str, user_type: str):
@@ -122,6 +117,8 @@ def amount_users_by_type(country: str, user_type: str):
 
 
 def last_authorization_in_app():
+    """ Information about last authorisation users in app"""
+
     def last_authorization(year: int, user_type: str, country: str):
         """Counting quantity of users with last authorisation in specific year."""
 
@@ -145,6 +142,8 @@ def last_authorization_in_app():
         return last
 
     """Information about users authorized in app by years."""
+    # TODO вынести добавление столбца в начало функции и удалить повторное добавление этого столбца
+    # во внутренней функции
     df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
     df_users['Year'].fillna('', inplace=True)
     years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
@@ -167,19 +166,15 @@ def last_authorization_in_app():
     index = [i for i in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
-    last_authorization_in_app_df.to_excel(f'last_authorization_in_app {today}.xlsx')
-    os.startfile(f'last_authorization_in_app {today}.xlsx')
+    last_authorization_in_app_df.to_excel(f'last_authorization_in_app {datetime.now().date()}.xlsx')
+    os.startfile(f'last_authorization_in_app {datetime.now().date()}.xlsx')
 
 
 def authorization_during_period(start_date, end_date):
-    """
-    information about the amount of authorized users for the period
-    """
+    """ information about the amount of authorized users for the period """
 
     def period_data(start_date: datetime, end_date: datetime, user_type: str, country: str):
-        """
-        Counting the amount of users authorized in App during period
-        """
+        """ Counting the amount of users authorized in App during period """
 
         data = df_users[(df_users['Тип пользователя'] == user_type) &
                         (df_users['Страна'] == country) &
@@ -215,7 +210,6 @@ def authorization_during_period(start_date, end_date):
 
 
 def points_by_users_and_countries():
-    # TODO unit code "sum_of_points" with "points_by_users_and_countries" function
     def sum_of_points(type_of_user: str, country: str):
         """ Count point of users by country"""
 
@@ -244,13 +238,12 @@ def points_by_users_and_countries():
     index = [i for i in range(len(points_by_users_and_countries_list))]
     points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
-    with pd.ExcelWriter(f"points_by_users_and_countries {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"points_by_users_and_countries {datetime.now().date()}.xlsx") as writer:
         points_by_users_and_countries_df.to_excel(writer)
-    os.startfile(f'points_by_users_and_countries {today}.xlsx')
+    os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
 
 
 def data_about_scan_users_in_current_year():
-    # TODO unit code "scanned_users" with "data_about_scan_users_in_current_year" function
     def scanned_users(country: str, user_type: str, himself=True):
         """ Count amount of users scanned in current year"""
 
@@ -294,13 +287,12 @@ def data_about_scan_users_in_current_year():
     index = [i for i in range(len(table_about_scan_users_in_year_list))]
     table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
-    with pd.ExcelWriter(f"scanned_users_in_year {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"scanned_users_in_year {datetime.now().date()}.xlsx") as writer:
         table_about_scan_users_in_year_df.to_excel(writer)
-    os.startfile(f'scanned_users_in_year {today}.xlsx')
+    os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
 
 
 def data_about_points():
-    # TODO unit code "total_amount_of_points_for_year" with "data_about_points" function
     def total_amount_of_points_for_year(country, user_type):
         """Count the sum of balls scanned in current year"""
 
@@ -337,9 +329,9 @@ def data_about_points():
     index = [i for i in range(len(data_about_points_lst))]
     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
 
-    with pd.ExcelWriter(f"all_points_of_users_by_country {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"all_points_of_users_by_country {datetime.now().date()}.xlsx") as writer:
         data_about_points_df.to_excel(writer)
-    os.startfile(f'all_points_of_users_by_country {today}.xlsx')
+    os.startfile(f'all_points_of_users_by_country {datetime.now().date()}.xlsx')
 
 
 def sum_of_points_per_period(country, user_type, start_date, end_date, himself=True):
@@ -438,9 +430,9 @@ def top_users_by_scans(country, user_type):
         index = [_ for _ in range(len(top_users_by_scans_list))]
         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_list, index, columns)
 
-        with pd.ExcelWriter(f"top_dealers_by_scans_in_{country} {today}.xlsx") as writer:
+        with pd.ExcelWriter(f"top_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx") as writer:
             top_users_by_scans_list_df.to_excel(writer)
-        os.startfile(f'top_dealers_by_scans_in_{country} {today}.xlsx')
+        os.startfile(f'top_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx')
 
     elif user_type == 'Монтажник':
         for df_ID, df_points, df_country, df_user_type in zip(df_scans['UF_USER_ID'], df_scans['UF_POINTS'],
@@ -468,9 +460,9 @@ def top_users_by_scans(country, user_type):
         index = [_ for _ in range(len(top_users_by_scans_list))]
         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_list, index, columns)
 
-        with pd.ExcelWriter(f"top_adjusters_by_scans_in_{country} {today}.xlsx") as writer:
+        with pd.ExcelWriter(f"top_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx") as writer:
             top_users_by_scans_list_df.to_excel(writer)
-        os.startfile(f'top_adjusters_by_scans_in_{country} {today}.xlsx')
+        os.startfile(f'top_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx')
 
 
 def scanned_users_per_period(country, user_type, start_date, end_date, himself=True):
@@ -618,7 +610,7 @@ def data_about_scans_during_period(start_date, end_date):
                'Кол-во пользователей',
                'Пользователей за предыдущий аналогичный период',
                'Баллов за указанный период']
-    index = [i for i in range(len(data_about_scans_during_period_list))]
+    index = [_ for _ in range(len(data_about_scans_during_period_list))]
     data_about_scans_during_period_df = pd.DataFrame(data_about_scans_during_period_list, index, columns)
 
     with pd.ExcelWriter(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx") as writer:
@@ -640,6 +632,7 @@ def scanned_users_by_months():
               'Октябрь',
               'Ноябрь',
               'Декабрь']
+    df_scans['Месяц'] = df_users['UF_CREATED_AT'].dt.month
 
     scanned_users_by_months_list = []
     columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
@@ -655,21 +648,21 @@ def scanned_users_by_months():
                             (df_scans['Сам себе'] == 'Дилер') &
                             (df_scans['Монтажник.1'] == '')]
 
-            d_h = len(set(data['UF_USER_ID']))
+            d_h = len(set(data['UF_USER_ID']))  # dealers himself
             dealers_himself.append(d_h)
 
             data = df_scans[(df_scans['Месяц'] == month) &
                             (df_scans['Страна'] == country) &
                             (df_scans['Сам себе'] == 'Монтажник')]
 
-            a_h = len(set(data['UF_USER_ID']))
+            a_h = len(set(data['UF_USER_ID']))  # agjusters himself
             adjusters_himself.append(a_h)
 
             data = df_scans[(df_scans['Месяц'] == month) &
                             (df_scans['Страна'] == country) &
                             (df_scans['Монтажник.1'] == 'Монтажник')]
 
-            a_d = len(set(data['Монтажник']))
+            a_d = len(set(data['Монтажник']))   # adjusters for dealers
             adjusters_for_dealers.append(a_d)
 
             total_users_in_country.append(d_h + a_h + a_d)
@@ -683,9 +676,9 @@ def scanned_users_by_months():
     index = [_ for _ in range(len(scanned_users_by_months_list))]
     scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
 
-    with pd.ExcelWriter(f"scanned_users_by_months {today}.xlsx") as writer:
+    with pd.ExcelWriter(f"scanned_users_by_months {datetime.now().date()}.xlsx") as writer:
         scanned_users_by_months_df.to_excel(writer)
-    os.startfile(f'scanned_users_by_months {today}.xlsx')
+    os.startfile(f'scanned_users_by_months {datetime.now().date()}.xlsx')
 
 
 def finish():
