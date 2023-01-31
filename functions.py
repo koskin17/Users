@@ -76,8 +76,7 @@ df_scans = pd.read_excel('Данные по пользователям и ска
                          usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
                                   'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
                                   'Монтажник.1'],
-                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int,
-                                     "UF_CREATED_AT": to_datetime})
+                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
 
 df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
 df_scans = df_scans.fillna('')
@@ -620,31 +619,33 @@ def data_about_scans_during_period(start_date, end_date):
 
 def scanned_users_by_months():
     """ Information about scanned users by country in each month """
-    months = ['Январь',
-              'Февраль',
-              'Март',
-              'Апрель',
-              'Май',
-              'Июнь',
-              'Июль',
-              'Август',
-              'Сентябрь',
-              'Октябрь',
-              'Ноябрь',
-              'Декабрь']
-    df_scans['Месяц'] = df_users['UF_CREATED_AT'].dt.month
+    months = {1: 'Январь',
+              2: 'Февраль',
+              3: 'Март',
+              4: 'Апрель',
+              5: 'Май',
+              6: 'Июнь',
+              7: 'Июль',
+              8: 'Август',
+              9: 'Сентябрь',
+              10: 'Октябрь',
+              11: 'Ноябрь',
+              12: 'Декабрь'}
+    df_scans['Месяц'] = df_scans['UF_CREATED_AT'].dt.month.map(months)
 
     scanned_users_by_months_list = []
-    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months]
+    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months.values()]
 
     for country in countries:
         dealers_himself = [country, 'Дилеры', 'Сами себе']
         adjusters_himself = ['', 'Монтажники', 'Сами себе']
         adjusters_for_dealers = ['', 'Монтажники', 'Сканировали дилеру']
         total_users_in_country = ['', '', 'Итого:']
-        for month in months:
-            data = df_scans[(df_scans['Месяц'] == month) &
-                            (df_scans['Страна'] == country) &
+
+        for month in months.values():
+
+            data = df_scans[(df_scans['Страна'] == country) &
+                            (df_scans['Месяц'] == month) &
                             (df_scans['Сам себе'] == 'Дилер') &
                             (df_scans['Монтажник.1'] == '')]
 
@@ -655,7 +656,7 @@ def scanned_users_by_months():
                             (df_scans['Страна'] == country) &
                             (df_scans['Сам себе'] == 'Монтажник')]
 
-            a_h = len(set(data['UF_USER_ID']))  # agjusters himself
+            a_h = len(set(data['UF_USER_ID']))  # adjusters himself
             adjusters_himself.append(a_h)
 
             data = df_scans[(df_scans['Месяц'] == month) &

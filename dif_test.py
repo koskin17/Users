@@ -14,22 +14,22 @@ df_scans = pd.read_excel('Данные по пользователям и ска
                                      "UF_CREATED_AT": to_datetime})
 
 df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
-df_scans = df_scans.fillna('')
-months = {1: 'Январь',
-          2: 'Февраль',
-          3: 'Март',
-          4: 'Апрель',
-          5: 'Май',
-          6: 'Июнь',
-          7: 'Июль',
-          8: 'Август',
-          9: 'Сентябрь',
-          10: 'Октябрь',
-          11: 'Ноябрь',
-          12: 'Декабрь'}
 
+months = {1: 'Январь',
+              2: 'Февраль',
+              3: 'Март',
+              4: 'Апрель',
+              5: 'Май',
+              6: 'Июнь',
+              7: 'Июль',
+              8: 'Август',
+              9: 'Сентябрь',
+              10: 'Октябрь',
+              11: 'Ноябрь',
+              12: 'Декабрь'}
 df_scans['Месяц'] = df_scans['UF_CREATED_AT'].dt.month.map(months)
-print(df_scans['Месяц'])
+columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months.values()]
+print(columns)
 
 
 
