@@ -683,9 +683,8 @@ def scanned_users_by_months():
     index = [_ for _ in range(len(scanned_users_by_months_list))]
     scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
 
-    with pd.ExcelWriter(f"scanned_users_by_months {datetime.now().date()}.xlsx") as writer:
-        scanned_users_by_months_df.to_excel(writer)
-    os.startfile(f'scanned_users_by_months {datetime.now().date()}.xlsx')
+    scanned_users_by_months_df.to_excel(f"scanned_users_by_months {datetime.now().date()}.xlsx")
+    os.startfile(f"scanned_users_by_months {datetime.now().date()}.xlsx")
 
 
 def finish():
