@@ -237,8 +237,9 @@ def points_by_users_and_countries():
     index = [i for i in range(len(points_by_users_and_countries_list))]
     points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
-    with pd.ExcelWriter(f"points_by_users_and_countries {datetime.now().date()}.xlsx") as writer:
-        points_by_users_and_countries_df.to_excel(writer)
+    points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
+    # with pd.ExcelWriter(f"points_by_users_and_countries {datetime.now().date()}.xlsx") as writer:
+    #     points_by_users_and_countries_df.to_excel(writer)
     os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
 
 
