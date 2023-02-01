@@ -288,8 +288,7 @@ def data_about_scan_users_in_current_year():
     index = [i for i in range(len(table_about_scan_users_in_year_list))]
     table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
-    with pd.ExcelWriter(f"scanned_users_in_year {datetime.now().date()}.xlsx") as writer:
-        table_about_scan_users_in_year_df.to_excel(writer)
+    table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
     os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
 
 
