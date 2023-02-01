@@ -332,9 +332,8 @@ def data_about_points():
     index = [i for i in range(len(data_about_points_lst))]
     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
 
-    with pd.ExcelWriter(f"all_points_of_users_by_country {datetime.now().date()}.xlsx") as writer:
-        data_about_points_df.to_excel(writer)
-    os.startfile(f'all_points_of_users_by_country {datetime.now().date()}.xlsx')
+    data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
+    os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
 
 
 def sum_of_points_per_period(country, user_type, start_date, end_date, himself=True):
@@ -619,8 +618,9 @@ def data_about_scans_during_period(start_date, end_date):
     index = [_ for _ in range(len(data_about_scans_during_period_list))]
     data_about_scans_during_period_df = pd.DataFrame(data_about_scans_during_period_list, index, columns)
 
-    with pd.ExcelWriter(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx") as writer:
-        data_about_scans_during_period_df.to_excel(writer)
+    data_about_scans_during_period_df.to_excel(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx")
+    # with pd.ExcelWriter(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx") as writer:
+    #     data_about_scans_during_period_df.to_excel(writer)
     os.startfile(f'data_about_scans_during_period_{start_date}-{end_date}.xlsx')
 
 
