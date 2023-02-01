@@ -201,8 +201,8 @@ def authorization_during_period(start_date, end_date):
 
     start = datetime.strftime(start_date, "%d-%m-%Y")
     end = datetime.strftime(end_date, "%d-%m-%Y")
-    with pd.ExcelWriter(f"authorization_during_period {start}-{end}.xlsx") as writer:
-        authorization_during_period_df.to_excel(writer)
+
+    authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
