@@ -115,12 +115,11 @@ def amount_users_by_type(country: str, user_type: str):
 
 def last_authorization_in_app():
     """ Information about last authorisation users in app"""
+    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+    df_users.fillna('', inplace=True)
 
     def last_authorization(year: int, user_type: str, country: str):
         """Counting quantity of users with last authorisation in specific year."""
-
-        df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-        df_users.fillna('', inplace=True)
 
         if year is None:
             data = df_users[
@@ -139,10 +138,6 @@ def last_authorization_in_app():
         return last
 
     """Information about users authorized in app by years."""
-    # TODO вынести добавление столбца в начало функции и удалить повторное добавление этого столбца
-    # во внутренней функции
-    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-    df_users['Year'].fillna('', inplace=True)
     years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
 
     last_authorization_in_app_list = []
@@ -238,8 +233,6 @@ def points_by_users_and_countries():
     points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
     points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
-    # with pd.ExcelWriter(f"points_by_users_and_countries {datetime.now().date()}.xlsx") as writer:
-    #     points_by_users_and_countries_df.to_excel(writer)
     os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
 
 
@@ -272,7 +265,6 @@ def data_about_scan_users_in_current_year():
 
         return len(count)
 
-    """Вывод данных о кол-ве сканировавших пользователей в текущем году."""
     table_about_scan_users_in_year_list = []
     for country in countries:
         dealers_himself = scanned_users(country, 'Дилер')
@@ -619,8 +611,6 @@ def data_about_scans_during_period(start_date, end_date):
     data_about_scans_during_period_df = pd.DataFrame(data_about_scans_during_period_list, index, columns)
 
     data_about_scans_during_period_df.to_excel(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx")
-    # with pd.ExcelWriter(f"data_about_scans_during_period_{start_date}-{end_date}.xlsx") as writer:
-    #     data_about_scans_during_period_df.to_excel(writer)
     os.startfile(f'data_about_scans_during_period_{start_date}-{end_date}.xlsx')
 
 

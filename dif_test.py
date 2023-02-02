@@ -13,34 +13,36 @@ df_users = pd.read_excel('user_admin.xlsx',
                          na_values="NA",
                          converters={"ID": int, "Баллы": int})
 
-df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
-                         usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
-                                  'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
-                                  'Монтажник.1'],
-                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
+df_users.to_excel()
+
+# df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
+#                          usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
+#                                   'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
+#                                   'Монтажник.1'],
+#                          converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
 #
 # df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
 
-top_users = {}  # словарь для ТОП пользователей
-surname = {}
-data = df_scans[(df_scans['Страна'] == 'Украина') &
-                (df_scans['Сам себе'] == 'Дилер')]
-
-for df_users_ID, df_users_surname in zip(df_users['ID'], df_users['Фамилия']):
-    surname[df_users_ID] = df_users_surname
-
-for user_id, points in zip(data['UF_USER_ID'], data['UF_POINTS']):
-    if user_id in top_users.keys():
-        top_users[user_id] += points
-    else:
-        top_users[user_id] = points
-
-top_users_by_scans_lst = []
-
-for df_scans_user_id in top_users.keys():
-    top_users_by_scans_lst.append([df_scans_user_id, surname[df_scans_user_id], top_users[df_scans_user_id]])
-
-print(sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True))
+# top_users = {}  # словарь для ТОП пользователей
+# surname = {}
+# data = df_scans[(df_scans['Страна'] == 'Украина') &
+#                 (df_scans['Сам себе'] == 'Дилер')]
+#
+# for df_users_ID, df_users_surname in zip(df_users['ID'], df_users['Фамилия']):
+#     surname[df_users_ID] = df_users_surname
+#
+# for user_id, points in zip(data['UF_USER_ID'], data['UF_POINTS']):
+#     if user_id in top_users.keys():
+#         top_users[user_id] += points
+#     else:
+#         top_users[user_id] = points
+#
+# top_users_by_scans_lst = []
+#
+# for df_scans_user_id in top_users.keys():
+#     top_users_by_scans_lst.append([df_scans_user_id, surname[df_scans_user_id], top_users[df_scans_user_id]])
+#
+# print(sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True))
 
 # months = {1: 'Январь',
 #               2: 'Февраль',
