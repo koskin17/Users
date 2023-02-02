@@ -19,21 +19,22 @@ df_users['Баллы'].fillna(0, inplace=True)
 df_users = df_users.fillna('')
 
 """Columns for check data about users"""
-columns_name = ['ID',
-                'Баллы',
-                'Последняя авторизация в приложении',
-                'Город работы',
-                'Страна',
-                'Тип пользователя',
-                'Фамилия',
-                'Имя',
-                'Отчество',
-                'E-Mail']
+df_users_columns = ['ID',
+                    'Баллы',
+                    'Последняя авторизация в приложении',
+                    'Город работы',
+                    'Страна',
+                    'Тип пользователя',
+                    'Фамилия',
+                    'Имя',
+                    'Отчество',
+                    'E-Mail']
 
 
-def check_file():
-    """Check the availability necessary columns in file"""
-    for col_name in columns_name:
+def check_file_with_users():
+    """Check the availability necessary columns in file about users"""
+
+    for col_name in df_users_columns:
         if col_name not in df_users.columns:
             print(f"В загруженных данных не хватает столбца {col_name}")
             return False
@@ -48,6 +49,7 @@ print("Данные по пользователям загружены.")
 
 exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
                  'skalar', 'test', 'malyigor', 'ihormaly', 'axor', 'kosits']  # sings of exclude account from counting
+
 """Creating list of excluded accounts"""
 exclude_list = set()  # list for exclude accounts from count: test, axor and so on
 for email in df_users['E-Mail']:
@@ -61,16 +63,17 @@ print('Список исключаемых аккаунтов сформиров
 
 countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
 
-"""Columns in DataFrame about scans
-'UF_TYPE',
-'UF_POINTS',
-'Дилер+Монтажник',
-'UF_USER_ID',
-'Монтажник',
-'UF_CREATED_AT',
-'Страна',
-'Сам себе',
-'Монтажник.1'"""
+"""Columns for check data about scans"""
+df_scans_columns = ['UF_TYPE',
+                    'UF_POINTS',
+                    'Дилер+Монтажник',
+                    'UF_USER_ID',
+                    'Монтажник',
+                    'UF_CREATED_AT',
+                    'Страна',
+                    'Сам себе',
+                    'Монтажник.1']
+
 print("Загрузка данных по сканам...")
 df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
                          usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
@@ -80,6 +83,17 @@ df_scans = pd.read_excel('Данные по пользователям и ска
 
 df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
 df_scans = df_scans.fillna('')
+
+
+def check_file_with_scans():
+    """Check the availability necessary columns in file about scans"""
+
+    for col_name in df_scans_columns:
+        if col_name not in df_scans.columns:
+            print(f"В загруженных данных не хватает столбца {col_name}")
+            return False
+
+    return True
 
 
 def total_stat():

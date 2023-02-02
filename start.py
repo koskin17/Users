@@ -87,5 +87,6 @@ def main():
 
 
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
-if check_file():
-    main()
+if check_file_with_users():
+    if check_file_with_scans():
+        main()
