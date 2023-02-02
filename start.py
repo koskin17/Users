@@ -67,7 +67,7 @@ def main():
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Монтажник')
             case '9':
-                start_date = input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): ')
+                start_date = datetime.strptime(input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '))
                 try:
                     valid_start_date = time.strptime(start_date, '%d.%m.%Y')
                     start_date = time.strftime('%d.%m.%Y', valid_start_date)
