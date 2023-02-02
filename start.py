@@ -67,14 +67,13 @@ def main():
                 country_choice = input('Выберите страну: ')
                 top_users_by_scans(country_list[int(country_choice)], 'Монтажник')
             case '9':
-                start_date = datetime.strptime(input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '))
                 try:
-                    valid_start_date = time.strptime(start_date, '%d.%m.%Y')
-                    start_date = time.strftime('%d.%m.%Y', valid_start_date)
-                    end_date = input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): ')
+                    start_date = datetime.strptime(
+                        input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '))
+
                     try:
-                        valid_end_date = time.strptime(end_date, '%d.%m.%Y')
-                        end_date = time.strftime('%d.%m.%Y', valid_end_date)
+                        end_date = datetime.strptime(
+                            input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): '))
                         data_about_scans_during_period(start_date, end_date)
                     except ValueError:
                         print('Дата введена неверно!')

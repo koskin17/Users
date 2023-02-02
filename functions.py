@@ -477,53 +477,44 @@ def top_users_by_scans(country: str, user_type: str):
 
 
 def scanned_users_per_period(country: str, user_type: str, start_date: datetime, end_date: datetime, himself=True):
-    """
-    Подсчёт общего кол-ва сканировавших пользователей за период.
-    Параметры передаются при вызове функцией data_about_scans_during_period.
-    
-    : param country: Страна
-    : type country: str
-    : param user_type: Тип пользователя (дилер или монтажник)
-    : type user_type: str
-    : param start_date: Дата начала периода
-    : type start_date: str
-    : param end_date: Дата конца периода
-    : type end_date: str
-    : param himself: Пользователь сканирует QR-коды са себе
-    : type hiself: boolean
-    : return: кол-во пользователей за период
-    : type return: int
-    """
+    """ Count amount of users scanned during period"""
 
     count = set()
-    start = datetime(int(start_date[6:]), int(start_date[3:5]), int(start_date[:2]))
-    end = datetime(int(end_date[6:]), int(end_date[3:5]), int(end_date[:2]))
+    # start = datetime(int(start_date[6:]), int(start_date[3:5]), int(start_date[:2]))
+    # end = datetime(int(end_date[6:]), int(end_date[3:5]), int(end_date[:2]))
     if himself:
         if user_type == 'Дилер':
-            for day_of_scan, df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['UF_CREATED_AT'],
+            data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
+                            (df_scans['UF_CREATED_AT'] <= end_date) &
+                            (df_scans['Страна'] == country) &
+                            (df_scans['Сам себе'] == user_type) &
+                            (df_scans['Монтажник.1'] == '')]
+
+            count = set(df_scans['UF_USER_ID'])
+            for date_of_scan, df_ID, df_country, df_user, df_adjuster_1 in zip(df_scans['UF_CREATED_AT'],
                                                                               df_scans['UF_USER_ID'],
                                                                               df_scans['Страна'], df_scans['Сам себе'],
                                                                               df_scans['Монтажник.1']):
-                df_scan_struct_date = time.strptime(day_of_scan, '%d.%m.%Y %H:%M:%S')
-                df_scan_date = time.strftime('%d.%m.%Y', df_scan_struct_date)
-                df_scan_date = datetime(int(df_scan_date[6:]), int(df_scan_date[3:5]), int(df_scan_date[:2]))
-                if start <= df_scan_date <= end:
+                # df_scan_struct_date = time.strptime(date_of_scan, '%d.%m.%Y %H:%M:%S')
+                # df_scan_date = time.strftime('%d.%m.%Y', df_scan_struct_date)
+                # df_scan_date = datetime(int(df_scan_date[6:]), int(df_scan_date[3:5]), int(df_scan_date[:2]))
+                if start_date <= date_of_scan <= end_date:
                     if country == df_country and user_type == df_user and df_adjuster_1 != 'Монтажник':
                         count.add(df_ID)
 
         elif user_type == 'Монтажник':
-            for day_of_scan, df_ID, df_country, df_user in zip(df_scans['UF_CREATED_AT'], df_scans['UF_USER_ID'],
+            for date_of_scan, df_ID, df_country, df_user in zip(df_scans['UF_CREATED_AT'], df_scans['UF_USER_ID'],
                                                                df_scans['Страна'], df_scans['Сам себе']):
-                df_scan_struct_date = time.strptime(day_of_scan, '%d.%m.%Y %H:%M:%S')
+                df_scan_struct_date = time.strptime(date_of_scan, '%d.%m.%Y %H:%M:%S')
                 df_scan_date = time.strftime('%d.%m.%Y', df_scan_struct_date)
                 df_scan_date = datetime(int(df_scan_date[6:]), int(df_scan_date[3:5]), int(df_scan_date[:2]))
                 if start <= df_scan_date <= end:
                     if country == df_country and user_type == df_user:
                         count.add(df_ID)
     else:
-        for day_of_scan, df_ID, df_country, df_adjuster_1 in zip(df_scans['UF_CREATED_AT'], df_scans['Монтажник'],
+        for date_of_scan, df_ID, df_country, df_adjuster_1 in zip(df_scans['UF_CREATED_AT'], df_scans['Монтажник'],
                                                                  df_scans['Страна'], df_scans['Монтажник.1']):
-            df_scan_struct_date = time.strptime(day_of_scan, '%d.%m.%Y %H:%M:%S')
+            df_scan_struct_date = time.strptime(date_of_scan, '%d.%m.%Y %H:%M:%S')
             df_scan_date = time.strftime('%d.%m.%Y', df_scan_struct_date)
             df_scan_date = datetime(int(df_scan_date[6:]), int(df_scan_date[3:5]), int(df_scan_date[:2]))
             if start <= df_scan_date <= end:
@@ -533,28 +524,20 @@ def scanned_users_per_period(country: str, user_type: str, start_date: datetime,
     return len(count)
 
 
-def data_about_scans_during_period(start_date, end_date):
-    """
-    Вывод данных по пользователям и сканам за период.
+def data_about_scans_during_period(start_date: datetime, end_date: datetime):
+    """Output imformation about users and scans during petiod"""
 
-    : param start_date: Дата начала периода
-    : type start_date: str
-    : param end_date: Дата конца периода
-    : type end_date: str
-    : return: вывод таблицы
-    """
-
-    ''' Расчёт дат предыдущего периода '''
-    previous_start_struct = time.strftime('%d.%m.%Y', time.strptime(start_date, '%d.%m.%Y'))
-    previous_start = datetime(int(previous_start_struct[6:]), int(previous_start_struct[3:5]),
-                              int(previous_start_struct[:2]))
-    previous_end_struct = time.strftime('%d.%m.%Y', time.strptime(end_date, '%d.%m.%Y'))
-    previous_end = datetime(int(previous_end_struct[6:]), int(previous_end_struct[3:5]), int(previous_end_struct[:2]))
-    time_delta = previous_end - previous_start + timedelta(days=1)
-    previous_start = previous_start - time_delta
-    previous_start = str(previous_start)[8:10] + '.' + str(previous_start)[5:7] + '.' + str(previous_start)[:4]
-    previous_end = previous_end - time_delta
-    previous_end = str(previous_end)[8:10] + '.' + str(previous_end)[5:7] + '.' + str(previous_end)[:4]
+    # ''' Расчёт дат предыдущего периода '''
+    # previous_start_struct = time.strftime('%d.%m.%Y', time.strptime(start_date, '%d.%m.%Y'))
+    # previous_start = datetime(int(previous_start_struct[6:]), int(previous_start_struct[3:5]),
+    #                           int(previous_start_struct[:2]))
+    # previous_end_struct = time.strftime('%d.%m.%Y', time.strptime(end_date, '%d.%m.%Y'))
+    # previous_end = datetime(int(previous_end_struct[6:]), int(previous_end_struct[3:5]), int(previous_end_struct[:2]))
+    # time_delta = previous_end - previous_start + timedelta(days=1)
+    # previous_start = previous_start - time_delta
+    # previous_start = str(previous_start)[8:10] + '.' + str(previous_start)[5:7] + '.' + str(previous_start)[:4]
+    # previous_end = previous_end - time_delta
+    # previous_end = str(previous_end)[8:10] + '.' + str(previous_end)[5:7] + '.' + str(previous_end)[:4]
 
     data_about_scans_during_period_list = []
     for country in countries:
