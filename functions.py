@@ -170,7 +170,7 @@ def last_authorization_in_app():
                                               [last_authorization(year, 'Монтажник', country) for year in years] +
                                               [last_authorization(0, 'Монтажник', country)])
 
-    columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизировались']
+    columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизовались']
     index = [_ for _ in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
@@ -482,42 +482,42 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
     data_about_scans_during_period_list = []
 
     for country in countries:
+        dealers_themselves = scanned_users_per_period(country, 'Дилер', start_date, end_date)
+        adjusters_themselves = scanned_users_per_period(country, 'Монтажник', start_date, end_date)
+        adjusters_for_dealers = scanned_users_per_period(country, 'Монтажник', start_date, end_date, False)
+
         data_about_scans_during_period_list.append([country,
                                                     'Дилеры',
                                                     'Сами себе',
-                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date),
+                                                    dealers_themselves,
                                                     sum_of_points_per_period(country, 'Дилер', start_date,
                                                                              end_date) + sum_of_points_per_period(
-                                                        country, 'Монтажник', start_date, end_date, himself=False)])
+                                                        country, 'Монтажник', start_date, end_date, False)])
         data_about_scans_during_period_list.append(['',
                                                     'Монтажники',
                                                     'Сами себе',
-                                                    scanned_users_per_period(country, 'Монтажник', start_date,
-                                                                             end_date),
+                                                    adjusters_themselves,
                                                     sum_of_points_per_period(country, 'Монтажник', start_date,
                                                                              end_date)])
         data_about_scans_during_period_list.append(['',
                                                     'Монтажники',
                                                     'Сканировали дилеру',
-                                                    scanned_users_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             False),
+                                                    adjusters_for_dealers,
                                                     sum_of_points_per_period(country, 'Монтажник', start_date, end_date,
                                                                              False)])
         data_about_scans_during_period_list.append(['',
                                                     '',
                                                     'Итого:',
-                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date) +
-                                                    scanned_users_per_period(country, 'Монтажник', start_date,
-                                                                             end_date) +
-                                                    scanned_users_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             False),
+                                                    dealers_themselves +
+                                                    adjusters_themselves +
+                                                    adjusters_for_dealers,
                                                     sum_of_points_per_period(country, 'Дилер', start_date,
                                                                              end_date) + sum_of_points_per_period(
-                                                        country, 'Монтажник', start_date, end_date, himself=False) +
+                                                        country, 'Монтажник', start_date, end_date, False) +
                                                     sum_of_points_per_period(country, 'Монтажник', start_date,
                                                                              end_date) +
                                                     sum_of_points_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             himself=False)])
+                                                                             False)])
         data_about_scans_during_period_list.append(['',
                                                     '',
                                                     '',
