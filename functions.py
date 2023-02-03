@@ -479,31 +479,21 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
 
         return sum(data['UF_POINTS'])
 
-    """Dates of previous period"""
-    time_delta = end_date - start_date
-    previous_start = start_date - time_delta
-    previous_end = end_date - time_delta
-
     data_about_scans_during_period_list = []
 
     for country in countries:
         data_about_scans_during_period_list.append([country,
                                                     'Дилеры',
                                                     'Сами себе',
-                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date,
-                                                                             True),
-                                                    scanned_users_per_period(country, 'Дилер', previous_start,
-                                                                             previous_end, himself=True),
+                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date),
                                                     sum_of_points_per_period(country, 'Дилер', start_date,
                                                                              end_date) + sum_of_points_per_period(
                                                         country, 'Монтажник', start_date, end_date, himself=False)])
         data_about_scans_during_period_list.append(['',
                                                     'Монтажники',
                                                     'Сами себе',
-                                                    scanned_users_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             True),
-                                                    scanned_users_per_period(country, 'Монтажник', previous_start,
-                                                                             previous_end, himself=True),
+                                                    scanned_users_per_period(country, 'Монтажник', start_date,
+                                                                             end_date),
                                                     sum_of_points_per_period(country, 'Монтажник', start_date,
                                                                              end_date)])
         data_about_scans_during_period_list.append(['',
@@ -511,25 +501,16 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
                                                     'Сканировали дилеру',
                                                     scanned_users_per_period(country, 'Монтажник', start_date, end_date,
                                                                              False),
-                                                    scanned_users_per_period(country, 'Монтажник', previous_start,
-                                                                             previous_end, False),
                                                     sum_of_points_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             himself=False)])
+                                                                             False)])
         data_about_scans_during_period_list.append(['',
                                                     '',
                                                     'Итого:',
-                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date,
-                                                                             True) +
-                                                    scanned_users_per_period(country, 'Монтажник', start_date, end_date,
-                                                                             True) +
+                                                    scanned_users_per_period(country, 'Дилер', start_date, end_date) +
+                                                    scanned_users_per_period(country, 'Монтажник', start_date,
+                                                                             end_date) +
                                                     scanned_users_per_period(country, 'Монтажник', start_date, end_date,
                                                                              False),
-                                                    scanned_users_per_period(country, 'Дилер', previous_start,
-                                                                             previous_end, True) +
-                                                    scanned_users_per_period(country, 'Монтажник', previous_start,
-                                                                             previous_end, True) +
-                                                    scanned_users_per_period(country, 'Монтажник', previous_start,
-                                                                             previous_end, False),
                                                     sum_of_points_per_period(country, 'Дилер', start_date,
                                                                              end_date) + sum_of_points_per_period(
                                                         country, 'Монтажник', start_date, end_date, himself=False) +
@@ -541,14 +522,12 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
                                                     '',
                                                     '',
                                                     '',
-                                                    '',
                                                     ''])
 
     columns = ['Страна',
                'Пользователи',
                'Сканировали:',
                'Кол-во пользователей',
-               'Пользователей за предыдущий аналогичный период',
                'Баллов за указанный период']
     index = [_ for _ in range(len(data_about_scans_during_period_list))]
     data_about_scans_during_period_df = pd.DataFrame(data_about_scans_during_period_list, index, columns)
