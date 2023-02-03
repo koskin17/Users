@@ -27,7 +27,7 @@ def main():
         choice = input('Укажите номер пункта: ').lower()
         match choice:
             case '1':
-                total_stat()
+                users_by_country()
             case '2':
                 last_authorization_in_app()
             case '3':

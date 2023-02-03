@@ -1,8 +1,7 @@
 import os
+from datetime import datetime
+
 import pandas as pd
-from pandas import to_datetime
-from datetime import datetime, timedelta
-import time
 
 print("Загрузка данных по пользователям...")
 
@@ -93,19 +92,22 @@ def check_file_with_scans():
             print(f"В загруженных данных не хватает столбца {col_name}")
             return False
 
+    print("Данные по сканам загружены.")
+
     return True
 
 
-def total_stat():
+def users_by_country():
     """Formation general statistics about users by countries."""
 
     list_for_df = []
     for country in countries:
-        tmp_list = []
-        tmp_list.append(country)
-        data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Дилер")]
+        tmp_list = [country]
+        data = df_users[(df_users["Страна"] == country) &
+                        (df_users["Тип пользователя"] == "Дилер")]
         tmp_list.append(len(data["ID"]))
-        data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == "Монтажник")]
+        data = df_users[(df_users["Страна"] == country) &
+                        (df_users["Тип пользователя"] == "Монтажник")]
         tmp_list.append(len(data["ID"]))
         tmp_list.insert(1, sum(tmp_list[1:]))
         list_for_df.append(tmp_list)
@@ -118,58 +120,57 @@ def total_stat():
     os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
 
-def amount_users_by_type(country: str, user_type: str):
-    """ Count dealers / adjusters in country. """
-
-    data = df_users[(df_users["Страна"] == country) & (df_users["Тип пользователя"] == user_type)]
-    amount_of_users = len(data["ID"])
-
-    return amount_of_users
-
-
 def last_authorization_in_app():
-    """ Information about last authorisation users in app"""
-    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-    df_users.fillna('', inplace=True)
+    """ Information about last authorisation users in app by years"""
 
-    def last_authorization(year: int, user_type: str, country: str):
+    df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+    df_users['Year'].fillna(0, inplace=True)
+    # years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
+    years = sorted([year for year in set(df_users['Year']) if year != 0])
+
+    def amount_users_by_type(country_for_amount_users: str, user_type: str):
+        """ Count amount users in country. """
+
+        data = df_users[(df_users["Страна"] == country_for_amount_users) & (df_users["Тип пользователя"] == user_type)]
+        amount_of_users = len(data["ID"])
+
+        return amount_of_users
+
+    def last_authorization(year: int, user_type: str, country_for_last_authorization: str):
         """Counting quantity of users with last authorisation in specific year."""
 
-        if year is None:
+        if year == 0:
             data = df_users[
-                (df_users['Year'] == '') &
+                (df_users['Year'] == 0) &
                 (df_users['Тип пользователя'] == user_type) &
-                (df_users['Страна'] == country)]
+                (df_users['Страна'] == country_for_last_authorization)]
 
             last = len(data["ID"])
         else:
             data = df_users[(df_users['Year'] == year) &
                             (df_users["Тип пользователя"] == user_type) &
-                            (df_users["Страна"] == country)]
+                            (df_users["Страна"] == country_for_last_authorization)]
 
             last = len(data["ID"])
 
         return last
-
-    """Information about users authorized in app by years."""
-    years = sorted(map(int, [year for year in set(df_users['Year']) if year != '']))
 
     last_authorization_in_app_list = []
 
     for country in countries:
         last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер')] +
                                               [last_authorization(year, 'Дилер', country) for year in years] +
-                                              [last_authorization(None, 'Дилер', country)])
+                                              [last_authorization(0, 'Дилер', country)])
 
     last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
     for country in countries:
         last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
                                               [last_authorization(year, 'Монтажник', country) for year in years] +
-                                              [last_authorization(None, 'Монтажник', country)])
+                                              [last_authorization(0, 'Монтажник', country)])
 
     columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизировались']
-    index = [i for i in range(len(last_authorization_in_app_list))]
+    index = [_ for _ in range(len(last_authorization_in_app_list))]
     last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
     last_authorization_in_app_df.to_excel(f'last_authorization_in_app {datetime.now().date()}.xlsx')
@@ -179,13 +180,14 @@ def last_authorization_in_app():
 def authorization_during_period(start_date, end_date):
     """ information about the amount of authorized users for the period """
 
-    def period_data(start_date: datetime, end_date: datetime, user_type: str, country: str):
+    def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
+                    authorization_in_country: str):
         """ Counting the amount of users authorized in App during period """
 
         data = df_users[(df_users['Тип пользователя'] == user_type) &
-                        (df_users['Страна'] == country) &
-                        (df_users['Последняя авторизация в приложении'] >= start_date) &
-                        (df_users['Последняя авторизация в приложении'] <= end_date)]
+                        (df_users['Страна'] == authorization_in_country) &
+                        (df_users['Последняя авторизация в приложении'] >= start_period_of_authorisation) &
+                        (df_users['Последняя авторизация в приложении'] <= end_period_of_authorization)]
 
         authorization = len(data['ID'])
 
@@ -204,8 +206,8 @@ def authorization_during_period(start_date, end_date):
 
     authorization_during_period_list.append(['Всего:', '', total_amount])
 
-    columns = ['Страна', 'Тип пользователей', 'Авторизировалось пользователей']
-    index = [i for i in range(len(authorization_during_period_list))]
+    columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
+    index = [_ for _ in range(len(authorization_during_period_list))]
     authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
 
     start = datetime.strftime(start_date, "%d-%m-%Y")
@@ -218,17 +220,15 @@ def authorization_during_period(start_date, end_date):
 def points_by_users_and_countries():
     """ Information about points by users and countries """
 
-    def sum_of_points(type_of_user: str, country: str):
+    def sum_of_points(type_of_user: str, country_for_sum_points: str):
         """ Count point of users by country"""
 
         data = df_users[(df_users['Тип пользователя'] == type_of_user) &
-                        (df_users['Страна'] == country)]
+                        (df_users['Страна'] == country_for_sum_points)]
 
-        points = sum(data['Баллы'])
+        points_of_users_in_country = sum(data['Баллы'])
 
-        return points
-
-    """Information about points of users by countries"""
+        return points_of_users_in_country
 
     points_by_users_and_countries_list = []
     for country in countries:
@@ -243,7 +243,7 @@ def points_by_users_and_countries():
         points_by_users_and_countries_list.append(['', '', ''])
 
     columns = ['Страна', 'Тип пользователей', 'Сумма баллов']
-    index = [i for i in range(len(points_by_users_and_countries_list))]
+    index = [_ for _ in range(len(points_by_users_and_countries_list))]
     points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
     points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
@@ -253,25 +253,27 @@ def points_by_users_and_countries():
 def data_about_scan_users_in_current_year():
     """ Information about scanned users in current year """
 
-    def scanned_users(country: str, user_type: str, himself=True):
+    def scanned_users(country_for_scanned_users: str, user_type: str, himself=True):
         """ Count amount of users scanned in current year"""
+
+        count = set()
 
         if himself:
             if user_type == 'Дилер':
-                data = df_scans[(df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
                                 (df_scans['Сам себе'] == user_type) &
                                 (df_scans['Монтажник.1'] == '')]
 
                 count = set(data['UF_USER_ID'])
 
             elif user_type == 'Монтажник':
-                data = df_scans[(df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
                                 (df_scans['Сам себе'] == 'Монтажник')]
 
                 count = set(data['UF_USER_ID'])
 
         else:
-            data = df_scans[(df_scans['Страна'] == country) &
+            data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
                             (df_scans['Монтажник.1'] == 'Монтажник')]
 
             count = set(data['Монтажник'])
@@ -291,7 +293,7 @@ def data_about_scan_users_in_current_year():
         table_about_scan_users_in_year_list.append(['', '', '', ''])
 
     columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
-    index = [i for i in range(len(table_about_scan_users_in_year_list))]
+    index = [_ for _ in range(len(table_about_scan_users_in_year_list))]
     table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
     table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
@@ -301,22 +303,24 @@ def data_about_scan_users_in_current_year():
 def data_about_points():
     """ Information about sum of points scanned in current year """
 
-    def total_amount_of_points_for_year(country, user_type):
+    def total_amount_of_points_for_year(country_for_points, user_type):
         """Count the sum of points scanned in current year"""
 
+        amount_of_points = 0
+
         if user_type == 'Дилер':
-            data = df_scans[(df_scans['Страна'] == country) &
+            data = df_scans[(df_scans['Страна'] == country_for_points) &
                             (df_scans['Сам себе'] == user_type)]
 
             amount_of_points = sum(data['UF_POINTS'])
 
         elif user_type == 'Монтажник':
-            data = df_scans[(df_scans['Страна'] == country) &
+            data = df_scans[(df_scans['Страна'] == country_for_points) &
                             (df_scans['Сам себе'] == user_type)]
 
             amount_of_points = sum(data['UF_POINTS'])
 
-            data = df_scans[(df_scans['Страна'] == country) &
+            data = df_scans[(df_scans['Страна'] == country_for_points) &
                             (df_scans['Монтажник.1'] == 'Монтажник')]
 
             amount_of_points += sum(data['UF_POINTS'])
@@ -334,7 +338,7 @@ def data_about_points():
         data_about_points_lst.append(['', '', ''])
 
     columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
-    index = [i for i in range(len(data_about_points_lst))]
+    index = [_ for _ in range(len(data_about_points_lst))]
     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
 
     data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
@@ -418,24 +422,26 @@ def top_users_by_scans(country: str, user_type: str):
 def data_about_scans_during_period(start_date: datetime, end_date: datetime):
     """Output information about users and scans during period"""
 
-    def scanned_users_per_period(country: str, user_type: str, start_date: datetime, end_date: datetime, himself=True):
+    def scanned_users_per_period(country_for_scanned_users_in_period: str, user_type: str,
+                                 start_period_of_scanned_users: datetime,
+                                 end_period_of_scanned_users: datetime, himself=True):
         """ Count amount of users scanned during period"""
 
         count = set()
         if himself:
             if user_type == 'Дилер':
-                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
-                                (df_scans['UF_CREATED_AT'] <= end_date) &
-                                (df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_of_scanned_users) &
+                                (df_scans['UF_CREATED_AT'] <= end_period_of_scanned_users) &
+                                (df_scans['Страна'] == country_for_scanned_users_in_period) &
                                 (df_scans['Сам себе'] == user_type) &
                                 (df_scans['Монтажник.1'] != 'Монтажник')]
 
                 count = set(data['UF_USER_ID'])
 
             elif user_type == 'Монтажник':
-                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
-                                (df_scans['UF_CREATED_AT'] <= end_date) &
-                                (df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_of_scanned_users) &
+                                (df_scans['UF_CREATED_AT'] <= end_period_of_scanned_users) &
+                                (df_scans['Страна'] == country_for_scanned_users_in_period) &
                                 (df_scans['Сам себе'] == user_type)]
 
                 count = set(data['UF_USER_ID'])
@@ -443,39 +449,41 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
             for date_of_scan, df_ID, df_country, df_adjuster_1 in zip(df_scans['UF_CREATED_AT'], df_scans['Монтажник'],
                                                                       df_scans['Страна'], df_scans['Монтажник.1']):
 
-                if start_date <= date_of_scan <= end_date:
+                if start_period_of_scanned_users <= date_of_scan <= end_period_of_scanned_users:
                     if country == df_country and df_adjuster_1 == 'Монтажник':
                         count.add(df_ID)
 
         return len(count)
 
-    def sum_of_points_per_period(country: str, user_type: str, start_date: datetime, end_date: datetime,
+    def sum_of_points_per_period(country_for_sum_points_in_period: str, user_type: str,
+                                 start_period_for_sum_points: datetime, end_period_of_sum_points: datetime,
                                  himself=True):
         """ Count sum of scanned points during period """
 
         amount_of_points_per_period = 0
+
         if himself:
             if user_type == 'Дилер':
-                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
-                                (df_scans['UF_CREATED_AT'] <= end_date) &
-                                (df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
+                                (df_scans['UF_CREATED_AT'] <= end_period_of_sum_points) &
+                                (df_scans['Страна'] == country_for_sum_points_in_period) &
                                 (df_scans['Сам себе'] == user_type) &
                                 (df_scans['Монтажник.1'] != 'Монтажник')]
 
                 amount_of_points_per_period = sum(data['UF_POINTS'])
 
             elif user_type == 'Монтажник':
-                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
-                                (df_scans['UF_CREATED_AT'] <= end_date) &
-                                (df_scans['Страна'] == country) &
+                data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
+                                (df_scans['UF_CREATED_AT'] <= end_period_of_sum_points) &
+                                (df_scans['Страна'] == country_for_sum_points_in_period) &
                                 (df_scans['Сам себе'] == user_type)]
 
                 amount_of_points_per_period = sum(data['UF_POINTS'])
 
         else:
-            data = df_scans[(df_scans['UF_CREATED_AT'] >= start_date) &
-                            (df_scans['UF_CREATED_AT'] <= end_date) &
-                            (df_scans['Страна'] == country) &
+            data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
+                            (df_scans['UF_CREATED_AT'] <= end_period_of_sum_points) &
+                            (df_scans['Страна'] == country_for_sum_points_in_period) &
                             (df_scans['Монтажник.1'] == 'Монтажник')]
 
             amount_of_points_per_period = sum(data['UF_POINTS'])
@@ -488,6 +496,7 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
     previous_end = end_date - time_delta
 
     data_about_scans_during_period_list = []
+
     for country in countries:
         data_about_scans_during_period_list.append([country,
                                                     'Дилеры',
