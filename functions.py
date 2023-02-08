@@ -2,98 +2,110 @@ import os
 from datetime import datetime
 import pandas as pd
 
-print("Загрузка данных по пользователям...")
-
-"""Load data about users"""
-df_users = pd.read_excel('user_admin.xlsx',
-                         na_values="NA",
-                         usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
-                                  'Страна', 'Город работы', 'Тип пользователя',
-                                  'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
-                         converters={"ID": int, "Баллы": int})
-df_users['Последняя авторизация в приложении'] = pd.to_datetime(df_users['Последняя авторизация в приложении'],
-                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize()
-df_users['Баллы'].fillna(0, inplace=True)
-df_users = df_users.fillna('')
-
-"""Columns for check data about users"""
-df_users_columns = ['ID',
-                    'Баллы',
-                    'Последняя авторизация в приложении',
-                    'Город работы',
-                    'Страна',
-                    'Тип пользователя',
-                    'Фамилия',
-                    'Имя',
-                    'Отчество',
-                    'E-Mail']
-
 
 def check_file_with_users():
-    """Check the availability necessary columns in file about users"""
+    """Loading and check file about users and the availability necessary columns in file about users"""
+
+    print("Загрузка данных по пользователям...")
+
+    """Columns for check data about users"""
+    df_users_columns = ['ID',
+                        'Баллы',
+                        'Последняя авторизация в приложении',
+                        'Город работы',
+                        'Страна',
+                        'Тип пользователя',
+                        'Фамилия',
+                        'Имя',
+                        'Отчество',
+                        'E-Mail']
+
+    data_about_users = pd.read_excel('user_admin.xlsx',
+                                     na_values="NA",
+                                     usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+                                              'Страна', 'Город работы', 'Тип пользователя',
+                                              'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
+                                     converters={"ID": int, "Баллы": int})
 
     for col_name in df_users_columns:
-        if col_name not in df_users.columns:
+        if col_name not in data_about_users.columns:
             print(f"В загруженных данных не хватает столбца {col_name}")
             return False
 
-    return True
+    data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
+        data_about_users['Последняя авторизация в приложении'],
+        format='%d.%m.%Y %H:%M:%S').dt.normalize()
+
+    data_about_users['Баллы'].fillna(0, inplace=True)
+    data_about_users.fillna('', inplace=True)
+
+    """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
+    data_about_users = data_about_users[(data_about_users['Страна'] != '') &
+                                        (data_about_users['Тип пользователя'] != 'Клиент')]
+
+    """List of test accounts, excludes from counting"""
+    exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
+                     'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
+                     'kosits']
+
+    """Creating list of excluded accounts"""
+    exclude_list = set()
+    for email in data_about_users['E-Mail']:
+        for i in exclude_users:
+            if i in email:
+                exclude_list.add(email)
+
+    """Clean DataFrame from exclude accounts"""
+    data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
+
+    print('Список исключаемых аккаунтов сформирован.')
+    print("Данные по пользователям загружены.")
+
+    return data_about_users
 
 
-"""Clean spam and test accounts in Users_DataFrame"""
-df_users = df_users[(df_users['Страна'] != '') &
-                    (df_users['Тип пользователя'] != 'Клиент')]  # exception empty row in "Страна" and 'Клиент' as spam
-print("Данные по пользователям загружены.")
-
-exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
-                 'skalar', 'test', 'malyigor', 'ihormaly', 'axor', 'kosits']  # sings of exclude account from counting
-
-"""Creating list of excluded accounts"""
-exclude_list = set()  # list for exclude accounts from count: test, axor and so on
-for email in df_users['E-Mail']:
-    for i in exclude_users:
-        if i in email:
-            exclude_list.add(email)
-
-"""Clean DataFrame from exclude accounts"""
-df_users = df_users.loc[~df_users['E-Mail'].isin(exclude_list)]
-print('Список исключаемых аккаунтов сформирован.')
+"""Load data about users"""
+df_users = check_file_with_users()
 
 countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
-
-"""Columns for check data about scans"""
-df_scans_columns = ['UF_TYPE',
-                    'UF_POINTS',
-                    'Дилер+Монтажник',
-                    'UF_USER_ID',
-                    'Монтажник',
-                    'UF_CREATED_AT',
-                    'Страна',
-                    'Сам себе',
-                    'Монтажник.1']
-
-print("Загрузка данных по сканам...")
-df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
-                         usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
-                                  'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
-                                  'Монтажник.1'],
-                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
-
-df_scans['UF_CREATED_AT'] = pd.to_datetime(df_scans['UF_CREATED_AT'], format='%d.%m.%Y %H:%M:%S').dt.normalize()
-df_scans = df_scans.fillna('')
 
 
 def check_file_with_scans():
     """Check the availability necessary columns in file about scans"""
 
+    print("Загрузка данных по сканам...")
+
+    """Columns for check data about scans"""
+    df_scans_columns = ['UF_TYPE',
+                        'UF_POINTS',
+                        'Дилер+Монтажник',
+                        'UF_USER_ID',
+                        'Монтажник',
+                        'UF_CREATED_AT',
+                        'Страна',
+                        'Сам себе',
+                        'Монтажник.1']
+    data_about_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
+                                     usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
+                                              'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
+                                              'Монтажник.1'],
+                                     converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
+
+    data_about_scans['UF_CREATED_AT'] = pd.to_datetime(data_about_scans['UF_CREATED_AT'],
+                                                       format='%d.%m.%Y %H:%M:%S').dt.normalize()
+    data_about_scans = data_about_scans.fillna('')
+
     for col_name in df_scans_columns:
-        if col_name not in df_scans.columns:
+        if col_name not in data_about_scans.columns:
             print(f"В загруженных данных не хватает столбца {col_name}")
             return False
 
     print("Данные по сканам загружены.")
 
-    return True
+    return data_about_scans
+
+
+df_scans = check_file_with_scans()
 
 
 def authorization_during_period(start_date, end_date):
@@ -357,7 +369,6 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
                                 (df_scans['UF_CREATED_AT'] <= end_period_of_sum_points) &
                                 (df_scans['Страна'] == country_for_sum_points_in_period) &
                                 (df_scans['Сам себе'] == user_type)]
-
         else:
             data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
                             (df_scans['UF_CREATED_AT'] <= end_period_of_sum_points) &

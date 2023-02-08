@@ -86,7 +86,7 @@ def main():
                 finish()
 
 
-''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
+''' Start main program '''
 if __name__ == '__main__':
-    if check_file_with_users() and check_file_with_scans():
+    if not df_users.empty and not df_scans.empty:
         main()
