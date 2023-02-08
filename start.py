@@ -1,7 +1,18 @@
-from functions import *
+from classes import *
+# from functions import *
+import sys
 
 
 def main():
+    # Create application app.
+    app = QApplication(sys.argv)
+    # Create main window for all other widgets.
+    main_window = MainWindows()
+    # Showing the main windows
+    main_window.show()
+    # Start app with method exec_, which starting loop
+    sys.exit(app.exec_())
+
     choice = ''
     while choice != 'q':
         print()
@@ -85,6 +96,6 @@ def main():
 
 
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
-if check_file_with_users():
-    if check_file_with_scans():
+if __name__ == '__main__':
+    # if check_file_with_users() and check_file_with_scans():
         main()
