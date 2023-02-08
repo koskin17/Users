@@ -6,15 +6,13 @@ import pandas as pd
 from pandas import to_datetime
 import os
 
-df_users = pd.read_excel('user_admin.xlsx',
-                         usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
-                                  'Страна', 'Тип пользователя', 'Фамилия', 'Имя',
-                                  'Отчество', 'E-Mail'],
-                         na_values="NA",
-                         converters={"ID": int, "Баллы": int})
-
-df_users.to_excel()
-
+# df_users = pd.read_excel('user_admin.xlsx',
+#                          usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+#                                   'Страна', 'Тип пользователя', 'Фамилия', 'Имя',
+#                                   'Отчество', 'E-Mail'],
+#                          na_values="NA",
+#                          converters={"ID": int, "Баллы": int})
+#
 # df_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
 #                          usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
 #                                   'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
