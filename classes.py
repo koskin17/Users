@@ -46,7 +46,7 @@ class MainWindows(QDialog):
         index_for_df = range(len(list_for_df))
         total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
                                                                                             ascending=False)
-        total_stat_df.to_excel(f"total_stats_about_users_for_{datetime.now().date()}.xlsx")
+        total_stat_df.to_excel(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
         os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
     @staticmethod

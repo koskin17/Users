@@ -18,10 +18,7 @@ def main():
         print()
         print('Информация по пользователям:')
         print()
-        print('1: Пользователи по странам')
-        print('2: Авторизация пользователей в приложении')
         print('3: Авторизация пользователей за период')
-        print('4: Общая информация по баллам на текущий момент')
         print()
         print('Информация по сканам:')
         print()
@@ -37,10 +34,6 @@ def main():
 
         choice = input('Укажите номер пункта: ').lower()
         match choice:
-            case '1':
-                users_by_country()
-            case '2':
-                last_authorization_in_app()
             case '3':
                 try:
                     start_date = datetime.strptime(
@@ -53,8 +46,6 @@ def main():
                         print('Конечная дата периода введена неверно!')
                 except ValueError:
                     print('Начальная дата периода введена неверно!')
-            case '4':
-                points_by_users_and_countries()
             case '5':
                 data_about_scan_users_in_current_year()
             case '6':
@@ -97,5 +88,5 @@ def main():
 
 ''' НАЧАЛО ОСНОВНОЙ ПРОГРАММЫ '''
 if __name__ == '__main__':
-    # if check_file_with_users() and check_file_with_scans():
+    if check_file_with_users() and check_file_with_scans():
         main()
