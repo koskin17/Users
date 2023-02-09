@@ -58,7 +58,6 @@ def check_file_with_users():
     """Clean DataFrame from exclude accounts"""
     data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
 
-    print('Список исключаемых аккаунтов сформирован.')
     print("Данные по пользователям загружены.")
 
     return data_about_users
@@ -144,56 +143,6 @@ def authorization_during_period(start_date, end_date):
 
     authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
-
-
-def data_about_scan_users_in_current_year():
-    """ Information about scanned users in current year """
-
-    def scanned_users(country_for_scanned_users: str, user_type: str, himself=True):
-        """ Count amount of users scanned in current year"""
-
-        count = set()
-
-        if himself:
-            if user_type == 'Дилер':
-                data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
-                                (df_scans['Сам себе'] == user_type) &
-                                (df_scans['Монтажник.1'] == '')]
-
-                count = set(data['UF_USER_ID'])
-
-            elif user_type == 'Монтажник':
-                data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
-                                (df_scans['Сам себе'] == 'Монтажник')]
-
-                count = set(data['UF_USER_ID'])
-
-        else:
-            data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
-                            (df_scans['Монтажник.1'] == 'Монтажник')]
-
-            count = set(data['Монтажник'])
-
-        return len(count)
-
-    table_about_scan_users_in_year_list = []
-    for country in countries:
-        dealers_himself = scanned_users(country, 'Дилер')
-        adjusters_himself = scanned_users(country, 'Монтажник')
-        adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
-        table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
-        table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
-        table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
-        table_about_scan_users_in_year_list.append(['', '', 'Итого:',
-                                                    dealers_himself + adjusters_himself + adjusters_for_dealers])
-        table_about_scan_users_in_year_list.append(['', '', '', ''])
-
-    columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
-    index = [_ for _ in range(len(table_about_scan_users_in_year_list))]
-    table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
-
-    table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
-    os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
 
 
 def data_about_points():

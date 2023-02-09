@@ -9,17 +9,7 @@ import sys
 from PyQt5.QtWidgets import *
 from classes import *
 
-# Процедурный метод создания главного окна
-"""# Создаём приложение Qt через переменную app
-app = QApplication(sys.argv)
-# Создаём главное окно. Это контейнер, в который будут добавлены все остальные виджеты
-main_window = QWidget()
-# устанавливаем заголовок для окна
-main_window.setWindowTitle("Данные по пользователя и сканам в приложении AXOR")
-# Отображаем главное окно
-main_window.show()
-# Запускает приложение app через метод exec_, который запускает цикл
-app.exec_()"""
+
 
 # df_users = pd.read_excel('user_admin.xlsx',
 #                          usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',

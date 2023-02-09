@@ -1,12 +1,14 @@
 from PyQt5.QtWidgets import *
 from functions import *
+from PyQt5.QtGui import QIcon
 
 
-class MainWindows(QDialog):
+class MainWindow(QDialog):
     def __init__(self):
         super().__init__()
         # set Title for main windows
         self.setWindowTitle("Данные по пользователя и сканам в приложении AXOR")
+        self.setWindowIcon(QIcon('axor.ico'))
         # # Set size of main window
         self.resize(600, 400)
         self.users_in_countries = QPushButton("Пользователи по странам", self)
@@ -23,6 +25,10 @@ class MainWindows(QDialog):
         self.total_points = QPushButton("Общая информация по баллам на текущий момент", self)
         self.total_points.move(0, 115)
         self.total_points.clicked.connect(self.points_by_users_and_countries)
+
+        self.total_points = QPushButton("Кол-во сканировавших пользователей в текущем году на данный момент", self)
+        self.total_points.move(0, 150)
+        self.total_points.clicked.connect(self.data_about_scan_users_in_current_year)
 
     @staticmethod
     def users_by_country():
@@ -135,3 +141,53 @@ class MainWindows(QDialog):
 
         points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
         os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
+
+    @staticmethod
+    def data_about_scan_users_in_current_year():
+        """ Information about scanned users in current year """
+
+        def scanned_users(country_for_scanned_users: str, user_type: str, himself=True):
+            """ Count amount of users scanned in current year"""
+
+            count = set()
+
+            if himself:
+                if user_type == 'Дилер':
+                    data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
+                                    (df_scans['Сам себе'] == user_type) &
+                                    (df_scans['Монтажник.1'] == '')]
+
+                    count = set(data['UF_USER_ID'])
+
+                elif user_type == 'Монтажник':
+                    data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
+                                    (df_scans['Сам себе'] == 'Монтажник')]
+
+                    count = set(data['UF_USER_ID'])
+
+            else:
+                data = df_scans[(df_scans['Страна'] == country_for_scanned_users) &
+                                (df_scans['Монтажник.1'] == 'Монтажник')]
+
+                count = set(data['Монтажник'])
+
+            return len(count)
+
+        table_about_scan_users_in_year_list = []
+        for country in countries:
+            dealers_himself = scanned_users(country, 'Дилер')
+            adjusters_himself = scanned_users(country, 'Монтажник')
+            adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
+            table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
+            table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
+            table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
+            table_about_scan_users_in_year_list.append(['', '', 'Итого:',
+                                                        dealers_himself + adjusters_himself + adjusters_for_dealers])
+            table_about_scan_users_in_year_list.append(['', '', '', ''])
+
+        columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
+        index = [_ for _ in range(len(table_about_scan_users_in_year_list))]
+        table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
+
+        table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
+        os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')

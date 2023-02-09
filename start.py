@@ -4,15 +4,6 @@ import sys
 
 
 def main():
-    # Create application app.
-    app = QApplication(sys.argv)
-    # Create main window for all other widgets.
-    main_window = MainWindows()
-    # Showing the main windows
-    main_window.show()
-    # Start app with method exec_, which starting loop
-    sys.exit(app.exec_())
-
     choice = ''
     while choice != 'q':
         print()
@@ -22,7 +13,6 @@ def main():
         print()
         print('Информация по сканам:')
         print()
-        print('5. Кол-во сканировавших пользователей в текущем году на данный момент.')
         print('6. Данные по насканированным баллам в текущем году на данный момент.')
         print('7. ТОП дилеров по сканам в текущем году на данный момент.')
         print('8. ТОП монтажников по сканам в текущем году на данный момент.')
@@ -46,8 +36,6 @@ def main():
                         print('Конечная дата периода введена неверно!')
                 except ValueError:
                     print('Начальная дата периода введена неверно!')
-            case '5':
-                data_about_scan_users_in_current_year()
             case '6':
                 data_about_points()
             case '7':
@@ -88,5 +76,14 @@ def main():
 
 ''' Start main program '''
 if __name__ == '__main__':
+    # Create application app.
+    app = QApplication(sys.argv)
+    # Create main window for all other widgets.
+    main_window = MainWindow()
+    main_window.windowIcon()
+    # Showing the main windows
+    main_window.show()
+    # Start app with method exec_, which starting loop
+    sys.exit(app.exec_())
     if not df_users.empty and not df_scans.empty:
         main()
