@@ -100,8 +100,8 @@ class MainWindow(QDialog):
         """Clean DataFrame from exclude accounts"""
         data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
 
-        # QMessageBox.information(self, "Данные по пользователям загружены.")
-        print("Данные по пользователям загружены.")
+        QMessageBox.information(self, "Данные по пользователям загружены.")
+        # print("Данные по пользователям загружены.")
 
         df_users = data_about_users
         countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
