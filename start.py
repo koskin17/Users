@@ -1,5 +1,4 @@
 from classes import *
-# from functions import *
 import sys
 
 
@@ -85,5 +84,5 @@ if __name__ == '__main__':
     main_window.show()
     # Start app with method exec_, which starting loop
     sys.exit(app.exec_())
-    if not df_users.empty and not df_scans.empty:
-        main()
+    # if not df_users.empty and not df_scans.empty:
+    #     main()

@@ -3,70 +3,70 @@ from datetime import datetime
 import pandas as pd
 
 
-def check_file_with_users():
-    """Loading and check file about users and the availability necessary columns in file about users"""
-
-    print("Загрузка данных по пользователям...")
-
-    """Columns for check data about users"""
-    df_users_columns = ['ID',
-                        'Баллы',
-                        'Последняя авторизация в приложении',
-                        'Город работы',
-                        'Страна',
-                        'Тип пользователя',
-                        'Фамилия',
-                        'Имя',
-                        'Отчество',
-                        'E-Mail']
-
-    data_about_users = pd.read_excel('user_admin.xlsx',
-                                     na_values="NA",
-                                     usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
-                                              'Страна', 'Город работы', 'Тип пользователя',
-                                              'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
-                                     converters={"ID": int, "Баллы": int})
-
-    for col_name in df_users_columns:
-        if col_name not in data_about_users.columns:
-            print(f"В загруженных данных не хватает столбца {col_name}")
-            return False
-
-    data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
-        data_about_users['Последняя авторизация в приложении'],
-        format='%d.%m.%Y %H:%M:%S').dt.normalize()
-
-    data_about_users['Баллы'].fillna(0, inplace=True)
-    data_about_users.fillna('', inplace=True)
-
-    """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
-    data_about_users = data_about_users[(data_about_users['Страна'] != '') &
-                                        (data_about_users['Тип пользователя'] != 'Клиент')]
-
-    """List of test accounts, excludes from counting"""
-    exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
-                     'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
-                     'kosits']
-
-    """Creating list of excluded accounts"""
-    exclude_list = set()
-    for email in data_about_users['E-Mail']:
-        for i in exclude_users:
-            if i in email:
-                exclude_list.add(email)
-
-    """Clean DataFrame from exclude accounts"""
-    data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
-
-    print("Данные по пользователям загружены.")
-
-    return data_about_users
+# def check_file_with_users():
+#     """Loading and check file about users and the availability necessary columns in file about users"""
+#
+#     print("Загрузка данных по пользователям...")
+#
+#     """Columns for check data about users"""
+#     df_users_columns = ['ID',
+#                         'Баллы',
+#                         'Последняя авторизация в приложении',
+#                         'Город работы',
+#                         'Страна',
+#                         'Тип пользователя',
+#                         'Фамилия',
+#                         'Имя',
+#                         'Отчество',
+#                         'E-Mail']
+#
+#     data_about_users = pd.read_excel('user_admin.xlsx',
+#                                      na_values="NA",
+#                                      usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+#                                               'Страна', 'Город работы', 'Тип пользователя',
+#                                               'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
+#                                      converters={"ID": int, "Баллы": int})
+#
+#     for col_name in df_users_columns:
+#         if col_name not in data_about_users.columns:
+#             print(f"В загруженных данных не хватает столбца {col_name}")
+#             return False
+#
+#     data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
+#         data_about_users['Последняя авторизация в приложении'],
+#         format='%d.%m.%Y %H:%M:%S').dt.normalize()
+#
+#     data_about_users['Баллы'].fillna(0, inplace=True)
+#     data_about_users.fillna('', inplace=True)
+#
+#     """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
+#     data_about_users = data_about_users[(data_about_users['Страна'] != '') &
+#                                         (data_about_users['Тип пользователя'] != 'Клиент')]
+#
+#     """List of test accounts, excludes from counting"""
+#     exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova', 'ostashenko',
+#                      'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
+#                      'kosits']
+#
+#     """Creating list of excluded accounts"""
+#     exclude_list = set()
+#     for email in data_about_users['E-Mail']:
+#         for i in exclude_users:
+#             if i in email:
+#                 exclude_list.add(email)
+#
+#     """Clean DataFrame from exclude accounts"""
+#     data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
+#
+#     print("Данные по пользователям загружены.")
+#
+#     return data_about_users
 
 
 """Load data about users"""
-df_users = check_file_with_users()
+# df_users = check_file_with_users()
 
-countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
+# countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
 
 
 def check_file_with_scans():

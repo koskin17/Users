@@ -1,9 +1,13 @@
 from PyQt5.QtWidgets import *
-from functions import *
 from PyQt5.QtGui import QIcon
+from functions import *
 
 
 class MainWindow(QDialog):
+    df_users = None
+    countries = None
+
+
     def __init__(self):
         super().__init__()
         # set Title for main windows
@@ -11,24 +15,97 @@ class MainWindow(QDialog):
         self.setWindowIcon(QIcon('axor.ico'))
         # # Set size of main window
         self.resize(600, 400)
-        self.users_in_countries = QPushButton("Пользователи по странам", self)
-        self.users_in_countries.move(0, 10)
-        self.users_in_countries.clicked.connect(self.users_by_country)
 
-        self.authorization_in_app = QPushButton("Авторизация пользователей в приложении", self)
-        self.authorization_in_app.move(0, 45)
-        self.authorization_in_app.clicked.connect(self.last_authorization_in_app)
+        self.about_users_btn = QPushButton("Загрузить базу пользователей", self)
+        self.about_users_btn.move(0, 20)
+        self.about_users_btn.clicked.connect(self.check_file_with_users)
 
-        self.authorization_in_period = QPushButton("ТЕСТ Авторизация пользователей за период", self)
-        self.authorization_in_period.move(0, 80)
+        self.users_in_countries_bt = QPushButton("Пользователи по странам", self)
+        self.users_in_countries_bt.move(0, 50)
+        self.users_in_countries_bt.clicked.connect(self.users_by_country)
 
-        self.total_points = QPushButton("Общая информация по баллам на текущий момент", self)
-        self.total_points.move(0, 115)
-        self.total_points.clicked.connect(self.points_by_users_and_countries)
+        self.authorization_in_app_btn = QPushButton("Авторизация пользователей в приложении", self)
+        self.authorization_in_app_btn.move(0, 85)
+        self.authorization_in_app_btn.clicked.connect(self.last_authorization_in_app)
 
-        self.total_points = QPushButton("Кол-во сканировавших пользователей в текущем году на данный момент", self)
-        self.total_points.move(0, 150)
-        self.total_points.clicked.connect(self.data_about_scan_users_in_current_year)
+        self.authorization_in_period_btn = QPushButton("ТЕСТ Авторизация пользователей за период", self)
+        self.authorization_in_period_btn.move(0, 120)
+
+        self.total_points_btn = QPushButton("Общая информация по баллам на текущий момент", self)
+        self.total_points_btn.move(0, 155)
+        self.total_points_btn.clicked.connect(self.points_by_users_and_countries)
+
+        self.total_points_btn = QPushButton("Кол-во сканировавших пользователей в текущем году на данный момент", self)
+        self.total_points_btn.move(0, 190)
+        self.total_points_btn.clicked.connect(self.data_about_scan_users_in_current_year)
+
+    def check_file_with_users(self):
+        """Loading and check file about users and the availability necessary columns in file about users"""
+        global df_users
+        global countries
+
+        file_with_data = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.xlsx;;*.xls')
+
+        print("Загрузка данных по пользователям...")
+
+        """Columns for check data about users"""
+        df_users_columns = ['ID',
+                            'Баллы',
+                            'Последняя авторизация в приложении',
+                            'Город работы',
+                            'Страна',
+                            'Тип пользователя',
+                            'Фамилия',
+                            'Имя',
+                            'Отчество',
+                            'E-Mail']
+
+        data_about_users = pd.read_excel(file_with_data[0],
+                                         na_values="NA",
+                                         usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
+                                                  'Страна', 'Город работы', 'Тип пользователя',
+                                                  'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
+                                         converters={"ID": int, "Баллы": int})
+
+        for col_name in df_users_columns:
+            if col_name not in data_about_users.columns:
+                # QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
+                print(f"В загруженных данных не хватает столбца {col_name}")
+                return False
+
+        data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
+            data_about_users['Последняя авторизация в приложении'],
+            format='%d.%m.%Y %H:%M:%S').dt.normalize()
+
+        data_about_users['Баллы'].fillna(0, inplace=True)
+        data_about_users.fillna('', inplace=True)
+
+        """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
+        data_about_users = data_about_users[(data_about_users['Страна'] != '') &
+                                            (data_about_users['Тип пользователя'] != 'Клиент')]
+
+        """List of test accounts, excludes from counting"""
+        exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova',
+                         'ostashenko',
+                         'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
+                         'kosits']
+
+        """Creating list of excluded accounts"""
+        exclude_list = set()
+        for email in data_about_users['E-Mail']:
+            for i in exclude_users:
+                if i in email:
+                    exclude_list.add(email)
+
+        """Clean DataFrame from exclude accounts"""
+        data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
+
+        # QMessageBox.information(self, "Данные по пользователям загружены.")
+        print("Данные по пользователям загружены.")
+
+        df_users = data_about_users
+        countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
+        # return data_about_users
 
     @staticmethod
     def users_by_country():
@@ -191,3 +268,5 @@ class MainWindow(QDialog):
 
         table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
         os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
+
+
