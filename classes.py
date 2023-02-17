@@ -7,7 +7,6 @@ class MainWindow(QDialog):
     df_users = None
     countries = None
 
-
     def __init__(self):
         super().__init__()
         # set Title for main windows
@@ -44,7 +43,7 @@ class MainWindow(QDialog):
         global df_users
         global countries
 
-        file_with_data = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.xlsx;;*.xls')
+        file_with_data = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.*')
 
         print("Загрузка данных по пользователям...")
 
@@ -62,20 +61,27 @@ class MainWindow(QDialog):
 
         data_about_users = pd.read_excel(file_with_data[0],
                                          na_values="NA",
-                                         usecols=['ID', 'Баллы', 'Последняя авторизация в приложении',
-                                                  'Страна', 'Город работы', 'Тип пользователя',
-                                                  'Фамилия', 'Имя', 'Отчество', 'E-Mail'],
                                          converters={"ID": int, "Баллы": int})
 
         for col_name in df_users_columns:
             if col_name not in data_about_users.columns:
-                # QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
-                print(f"В загруженных данных не хватает столбца {col_name}")
+                QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
                 return False
+            else:
+                data_about_users = data_about_users[['ID',
+                                                     'Баллы',
+                                                     'Последняя авторизация в приложении',
+                                                     'Город работы',
+                                                     'Страна',
+                                                     'Тип пользователя',
+                                                     'Фамилия',
+                                                     'Имя',
+                                                     'Отчество',
+                                                     'E-Mail']]
 
         data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
-            data_about_users['Последняя авторизация в приложении'],
-            format='%d.%m.%Y %H:%M:%S').dt.normalize()
+                                                                data_about_users['Последняя авторизация в приложении'],
+                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize()
 
         data_about_users['Баллы'].fillna(0, inplace=True)
         data_about_users.fillna('', inplace=True)
@@ -99,13 +105,10 @@ class MainWindow(QDialog):
 
         """Clean DataFrame from exclude accounts"""
         data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
-
-        QMessageBox.information(self, "Данные по пользователям загружены.")
-        # print("Данные по пользователям загружены.")
-
         df_users = data_about_users
         countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
-        # return data_about_users
+
+        QMessageBox.information(self, "Информация", "Данные по пользователям загружены.")
 
     @staticmethod
     def users_by_country():
@@ -268,5 +271,3 @@ class MainWindow(QDialog):
 
         table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
         os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
-
-
