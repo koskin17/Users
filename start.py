@@ -6,20 +6,14 @@ def main():
     choice = ''
     while choice != 'q':
         print()
-        print('Информация по пользователям:')
-        print()
         print('3: Авторизация пользователей за период')
         print()
-        print('Информация по сканам:')
         print()
         print()
         print()
-        print('8. ТОП монтажников по сканам в текущем году на данный момент.')
+        print()
+        print()
         print('9. Кол-во пользователей и насканированных баллов за период.')
-        print()
-        print()
-        print()
-        print()
 
         choice = input('Укажите номер пункта: ').lower()
         match choice:
@@ -35,24 +29,6 @@ def main():
                         print('Конечная дата периода введена неверно!')
                 except ValueError:
                     print('Начальная дата периода введена неверно!')
-            # case '7':
-            #     country_list = {}
-            #     for _ in range(len(countries)):
-            #         print(_, ' - ', countries[_])
-            #         country_list[_] = countries[_]
-            #         _ += 1
-            #
-            #     country_choice = input('Выберите страну: ')
-            #     top_users_by_scans(country_list[int(country_choice)], 'Дилер')
-            case '8':
-                country_list = {}
-                for _ in range(len(countries)):
-                    print(_, ' - ', countries[_])
-                    country_list[_] = countries[_]
-                    _ += 1
-
-                country_choice = input('Выберите страну: ')
-                top_users_by_scans(country_list[int(country_choice)], 'Монтажник')
             case '9':
                 try:
                     start_date = datetime.strptime(
@@ -65,10 +41,6 @@ def main():
                         print('Дата введена неверно!')
                 except ValueError:
                     print('Дата введена неверно!')
-            case '10':
-                scanned_users_by_months()
-            case 'q':
-                finish()
 
 
 ''' Start main program '''

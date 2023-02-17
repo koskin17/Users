@@ -54,8 +54,12 @@ class MainWindow(QDialog):
         self.about_users_btn.move(0, 295)
         self.about_users_btn.clicked.connect(self.scanned_users_by_months)
 
-        self.about_users_btn = QPushButton("ТОП дилеров по сканам в текущем году на данный момент", self)
+        self.about_users_btn = QPushButton("ТЕСТ Кол-во пользователей и насканированных баллов за период", self)
         self.about_users_btn.move(0, 330)
+        self.about_users_btn.clicked.connect(self.top_users_by_scans)
+
+        self.about_users_btn = QPushButton("ТОП пользователей по сканам в текущем году на данный момент", self)
+        self.about_users_btn.move(0, 365)
         self.about_users_btn.clicked.connect(self.top_users_by_scans)
 
     def check_file_with_users(self):
@@ -461,6 +465,9 @@ class MainWindow(QDialog):
             scanned_users_by_months_df.to_excel(f"scanned_users_by_months {datetime.now().date()}.xlsx")
             os.startfile(f"scanned_users_by_months {datetime.now().date()}.xlsx")
 
+    def data_about_scans_during_period(self):
+        pass
+
     def top_users_by_scans(self):
         """ TOP dealers / adjusters by scans"""
         global countries
@@ -472,12 +479,10 @@ class MainWindow(QDialog):
         else:
             countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
             users = ['Дилер', 'Монтажник']
-            ask_country = QInputDialog.getItem(self, "Страны", "Выберите страну...", countries, editable=False)
-            if ask_country[1]:
-                country = ask_country[0]
-                ask_user_type = QInputDialog.getItem(self, "Пользователи", "Выберите тип пользователей...", users,
-                                                     editable=False)
-                user_type = ask_user_type[0]
+            country = QInputDialog.getItem(self, "Страны", "Выберите страну...", countries, editable=False)
+            if country[1]:
+                user_type = QInputDialog.getItem(self, "Пользователи", "Выберите тип пользователей...", users,
+                                                 editable=False)
 
                 top_users = {}  # dictionary for TOP users by points
                 top_users_by_scans_lst = []
@@ -487,9 +492,9 @@ class MainWindow(QDialog):
                 for df_users_ID, df_users_surname in zip(df_users['ID'], df_users['Фамилия']):
                     surname[df_users_ID] = df_users_surname
 
-                if user_type == 'Дилер':
-                    data = df_scans[(df_scans['Страна'] == country) &
-                                    (df_scans['Сам себе'] == user_type)]
+                if user_type[0] == 'Дилер':
+                    data = df_scans[(df_scans['Страна'] == country[0]) &
+                                    (df_scans['Сам себе'] == user_type[0])]
 
                     for df_scans_dealer_id, df_scans_points in zip(data['UF_USER_ID'], data['UF_POINTS']):
                         if df_scans_dealer_id in top_users.keys():
@@ -498,7 +503,7 @@ class MainWindow(QDialog):
                             top_users[df_scans_dealer_id] = df_scans_points
 
                     for df_scans_dealer_id in top_users.keys():
-                        if df_scans_dealer_id in surname.keys():  # some users don't fill "Страна" and they don't count in df_users
+                        if df_scans_dealer_id in surname.keys():  # users with empty "Страна" don't count in df_users
                             top_users_by_scans_lst.append([df_scans_dealer_id,
                                                            surname[df_scans_dealer_id],
                                                            top_users[df_scans_dealer_id]])
@@ -511,12 +516,13 @@ class MainWindow(QDialog):
                     index = [_ for _ in range(len(top_users_by_scans_lst))]
                     top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
 
-                    top_users_by_scans_list_df.to_excel(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
-                    os.startfile(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
+                    top_users_by_scans_list_df.to_excel(
+                        f"TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
+                    os.startfile(f"TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
 
-                elif user_type == 'Монтажник':
-                    data = df_scans[(df_scans['Страна'] == country) &
-                                    (df_scans['Сам себе'] == user_type)]
+                elif user_type[0] == 'Монтажник':
+                    data = df_scans[(df_scans['Страна'] == country[0]) &
+                                    (df_scans['Сам себе'] == user_type[0])]
 
                     for df_scans_adjuster_id, df_scans_point in zip(data['UF_USER_ID'], data['UF_POINTS']):
                         if df_scans_adjuster_id in top_users.keys():
@@ -524,8 +530,8 @@ class MainWindow(QDialog):
                         else:
                             top_users[df_scans_adjuster_id] = df_scans_point
 
-                    data = df_scans[(df_scans['Страна'] == country) &
-                                    (df_scans['Монтажник.1'] == user_type)]
+                    data = df_scans[(df_scans['Страна'] == country[0]) &
+                                    (df_scans['Монтажник.1'] == user_type[0])]
 
                     for df_scans_adjuster_id, df_scans_point in zip(data['Монтажник'], data['UF_POINTS']):
                         if df_scans_adjuster_id in top_users.keys():
@@ -534,7 +540,7 @@ class MainWindow(QDialog):
                             top_users[df_scans_adjuster_id] = df_scans_point
 
                     for df_scans_adjuster_id in top_users.keys():
-                        if df_scans_adjuster_id in surname.keys():  # some users don't fill "Страна" and they not count in df_users
+                        if df_scans_adjuster_id in surname.keys():  # users with empty "Страна" don't count in df_users
                             top_users_by_scans_lst.append([df_scans_adjuster_id,
                                                            surname[df_scans_adjuster_id],
                                                            top_users[df_scans_adjuster_id]])
@@ -547,5 +553,6 @@ class MainWindow(QDialog):
                     index = [_ for _ in range(len(top_users_by_scans_lst))]
                     top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
 
-                    top_users_by_scans_list_df.to_excel(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
-                    os.startfile(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
+                    top_users_by_scans_list_df.to_excel(
+                        f"TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
+                    os.startfile(f"TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
