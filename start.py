@@ -13,7 +13,7 @@ def main():
         print('Информация по сканам:')
         print()
         print()
-        print('7. ТОП дилеров по сканам в текущем году на данный момент.')
+        print()
         print('8. ТОП монтажников по сканам в текущем году на данный момент.')
         print('9. Кол-во пользователей и насканированных баллов за период.')
         print()
@@ -35,15 +35,15 @@ def main():
                         print('Конечная дата периода введена неверно!')
                 except ValueError:
                     print('Начальная дата периода введена неверно!')
-            case '7':
-                country_list = {}
-                for _ in range(len(countries)):
-                    print(_, ' - ', countries[_])
-                    country_list[_] = countries[_]
-                    _ += 1
-
-                country_choice = input('Выберите страну: ')
-                top_users_by_scans(country_list[int(country_choice)], 'Дилер')
+            # case '7':
+            #     country_list = {}
+            #     for _ in range(len(countries)):
+            #         print(_, ' - ', countries[_])
+            #         country_list[_] = countries[_]
+            #         _ += 1
+            #
+            #     country_choice = input('Выберите страну: ')
+            #     top_users_by_scans(country_list[int(country_choice)], 'Дилер')
             case '8':
                 country_list = {}
                 for _ in range(len(countries)):
