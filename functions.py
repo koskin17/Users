@@ -1,5 +1,6 @@
 import os
-
+from datetime import datetime
+import pandas as pd
 
 def authorization_during_period(start_date, end_date):
     """ information about the amount of authorized users for the period """
@@ -39,78 +40,78 @@ def authorization_during_period(start_date, end_date):
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
-def top_users_by_scans(country: str, user_type: str):
-    """ TOP dealers / adjusters by scans"""
-    top_users = {}  # dictionary for TOP users by points
-    top_users_by_scans_lst = []
-    surname = {}  # dictionary for surnames
-
-    """ Filling the dictionary of surnames"""
-    for df_users_ID, df_users_surname in zip(df_users['ID'], df_users['Фамилия']):
-        surname[df_users_ID] = df_users_surname
-
-    if user_type == 'Дилер':
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Сам себе'] == user_type)]
-
-        for df_scans_dealer_id, df_scans_points in zip(data['UF_USER_ID'], data['UF_POINTS']):
-            if df_scans_dealer_id in top_users.keys():
-                top_users[df_scans_dealer_id] += df_scans_points
-            else:
-                top_users[df_scans_dealer_id] = df_scans_points
-
-        for df_scans_dealer_id in top_users.keys():
-            if df_scans_dealer_id in surname.keys():  # some users don't fill "Страна" and they don't count in df_users
-                top_users_by_scans_lst.append([df_scans_dealer_id,
-                                               surname[df_scans_dealer_id],
-                                               top_users[df_scans_dealer_id]])
-
-        top_users_by_scans_lst = sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True)
-
-        top_users_by_scans_lst.append(['Итого:', '', sum(top_users.values())])
-
-        columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
-        index = [_ for _ in range(len(top_users_by_scans_lst))]
-        top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
-
-        top_users_by_scans_list_df.to_excel(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
-        os.startfile(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
-
-    elif user_type == 'Монтажник':
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Сам себе'] == user_type)]
-
-        for df_scans_adjuster_id, df_scans_point in zip(data['UF_USER_ID'], data['UF_POINTS']):
-            if df_scans_adjuster_id in top_users.keys():
-                top_users[df_scans_adjuster_id] += df_scans_point
-            else:
-                top_users[df_scans_adjuster_id] = df_scans_point
-
-        data = df_scans[(df_scans['Страна'] == country) &
-                        (df_scans['Монтажник.1'] == user_type)]
-
-        for df_scans_adjuster_id, df_scans_point in zip(data['Монтажник'], data['UF_POINTS']):
-            if df_scans_adjuster_id in top_users.keys():
-                top_users[df_scans_adjuster_id] += df_scans_point
-            else:
-                top_users[df_scans_adjuster_id] = df_scans_point
-
-        for df_scans_adjuster_id in top_users.keys():
-            if df_scans_adjuster_id in surname.keys():  # some users don't fill "Страна" and they not count in df_users
-                top_users_by_scans_lst.append([df_scans_adjuster_id,
-                                               surname[df_scans_adjuster_id],
-                                               top_users[df_scans_adjuster_id]])
-
-        top_users_by_scans_lst = sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True)
-
-        top_users_by_scans_lst.append(['Итого:', '', sum(top_users.values())])
-
-        columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
-        index = [_ for _ in range(len(top_users_by_scans_lst))]
-        top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
-
-        top_users_by_scans_list_df.to_excel(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
-        os.startfile(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
+# def top_users_by_scans(country: str, user_type: str):
+#     """ TOP dealers / adjusters by scans"""
+#     top_users = {}  # dictionary for TOP users by points
+#     top_users_by_scans_lst = []
+#     surname = {}  # dictionary for surnames
+#
+#     """ Filling the dictionary of surnames"""
+#     for df_users_ID, df_users_surname in zip(df_users['ID'], df_users['Фамилия']):
+#         surname[df_users_ID] = df_users_surname
+#
+#     if user_type == 'Дилер':
+#         data = df_scans[(df_scans['Страна'] == country) &
+#                         (df_scans['Сам себе'] == user_type)]
+#
+#         for df_scans_dealer_id, df_scans_points in zip(data['UF_USER_ID'], data['UF_POINTS']):
+#             if df_scans_dealer_id in top_users.keys():
+#                 top_users[df_scans_dealer_id] += df_scans_points
+#             else:
+#                 top_users[df_scans_dealer_id] = df_scans_points
+#
+#         for df_scans_dealer_id in top_users.keys():
+#             if df_scans_dealer_id in surname.keys():  # some users don't fill "Страна" and they don't count in df_users
+#                 top_users_by_scans_lst.append([df_scans_dealer_id,
+#                                                surname[df_scans_dealer_id],
+#                                                top_users[df_scans_dealer_id]])
+#
+#         top_users_by_scans_lst = sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True)
+#
+#         top_users_by_scans_lst.append(['Итого:', '', sum(top_users.values())])
+#
+#         columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
+#         index = [_ for _ in range(len(top_users_by_scans_lst))]
+#         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
+#
+#         top_users_by_scans_list_df.to_excel(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
+#         os.startfile(f"TOP_dealers_by_scans_in_{country} {datetime.now().date()}.xlsx")
+#
+#     elif user_type == 'Монтажник':
+#         data = df_scans[(df_scans['Страна'] == country) &
+#                         (df_scans['Сам себе'] == user_type)]
+#
+#         for df_scans_adjuster_id, df_scans_point in zip(data['UF_USER_ID'], data['UF_POINTS']):
+#             if df_scans_adjuster_id in top_users.keys():
+#                 top_users[df_scans_adjuster_id] += df_scans_point
+#             else:
+#                 top_users[df_scans_adjuster_id] = df_scans_point
+#
+#         data = df_scans[(df_scans['Страна'] == country) &
+#                         (df_scans['Монтажник.1'] == user_type)]
+#
+#         for df_scans_adjuster_id, df_scans_point in zip(data['Монтажник'], data['UF_POINTS']):
+#             if df_scans_adjuster_id in top_users.keys():
+#                 top_users[df_scans_adjuster_id] += df_scans_point
+#             else:
+#                 top_users[df_scans_adjuster_id] = df_scans_point
+#
+#         for df_scans_adjuster_id in top_users.keys():
+#             if df_scans_adjuster_id in surname.keys():  # some users don't fill "Страна" and they not count in df_users
+#                 top_users_by_scans_lst.append([df_scans_adjuster_id,
+#                                                surname[df_scans_adjuster_id],
+#                                                top_users[df_scans_adjuster_id]])
+#
+#         top_users_by_scans_lst = sorted(top_users_by_scans_lst, key=lambda x: x[2], reverse=True)
+#
+#         top_users_by_scans_lst.append(['Итого:', '', sum(top_users.values())])
+#
+#         columns = ['ID пользователя', 'Фамилия', 'Сумма насканированных баллов']
+#         index = [_ for _ in range(len(top_users_by_scans_lst))]
+#         top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
+#
+#         top_users_by_scans_list_df.to_excel(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
+#         os.startfile(f"TOP_adjusters_by_scans_in_{country} {datetime.now().date()}.xlsx")
 
 
 def data_about_scans_during_period(start_date: datetime, end_date: datetime):
