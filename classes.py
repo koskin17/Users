@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from functions import *
+from datetime import datetime
+import pandas as pd
 
 df_users = None
 countries = None
@@ -47,6 +49,10 @@ class MainWindow(QDialog):
         self.about_users_btn = QPushButton("Данные по насканированным баллам в текущем году на данный момент", self)
         self.about_users_btn.move(0, 260)
         self.about_users_btn.clicked.connect(self.data_about_points)
+
+        self.about_users_btn = QPushButton("Кол-во сканировавших пользователей в текущем году по месяцам", self)
+        self.about_users_btn.move(0, 295)
+        self.about_users_btn.clicked.connect(self.scanned_users_by_months)
 
     def check_file_with_users(self):
         """Loading and check file about users and the availability necessary columns in file about users"""
@@ -182,8 +188,9 @@ class MainWindow(QDialog):
 
             columns_for_df = ['Страна', 'Всего пользователей', 'Дилеров', 'Монтажников']
             index_for_df = range(len(list_for_df))
-            total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
-                                                                                                ascending=False)
+            total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(
+                by="Всего пользователей",
+                ascending=False)
             total_stat_df.to_excel(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
             os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
@@ -233,9 +240,10 @@ class MainWindow(QDialog):
             last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
             for country in countries:
-                last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
-                                                      [last_authorization(year, 'Монтажник', country) for year in years] +
-                                                      [last_authorization(0, 'Монтажник', country)])
+                last_authorization_in_app_list.append(
+                    [country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
+                    [last_authorization(year, 'Монтажник', country) for year in years] +
+                    [last_authorization(0, 'Монтажник', country)])
 
             columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизовались']
             index = [_ for _ in range(len(last_authorization_in_app_list))]
@@ -319,7 +327,8 @@ class MainWindow(QDialog):
                 adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
                 table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
                 table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
-                table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
+                table_about_scan_users_in_year_list.append(
+                    ['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
                 table_about_scan_users_in_year_list.append(['', '', 'Итого:',
                                                             dealers_himself + adjusters_himself + adjusters_for_dealers])
                 table_about_scan_users_in_year_list.append(['', '', '', ''])
@@ -379,3 +388,71 @@ class MainWindow(QDialog):
 
             data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
             os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
+
+    def scanned_users_by_months(self):
+        """ Information about scanned users by country in each month """
+        global countries
+
+        if df_scans is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
+        else:
+            months = {1: 'Январь',
+                      2: 'Февраль',
+                      3: 'Март',
+                      4: 'Апрель',
+                      5: 'Май',
+                      6: 'Июнь',
+                      7: 'Июль',
+                      8: 'Август',
+                      9: 'Сентябрь',
+                      10: 'Октябрь',
+                      11: 'Ноябрь',
+                      12: 'Декабрь'}
+            countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
+            df_scans['Месяц'] = df_scans['UF_CREATED_AT'].dt.month.map(months)
+
+            scanned_users_by_months_list = []
+            columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months.values()]
+
+            for country in countries:
+                dealers_himself = [country, 'Дилеры', 'Сами себе']
+                adjusters_himself = ['', 'Монтажники', 'Сами себе']
+                adjusters_for_dealers = ['', 'Монтажники', 'Сканировали дилеру']
+                total_users_in_country = ['', '', 'Итого:']
+
+                for month in months.values():
+                    data = df_scans[(df_scans['Страна'] == country) &
+                                    (df_scans['Месяц'] == month) &
+                                    (df_scans['Сам себе'] == 'Дилер') &
+                                    (df_scans['Монтажник.1'] == '')]
+
+                    d_h = len(set(data['UF_USER_ID']))  # dealers himself
+                    dealers_himself.append(d_h)
+
+                    data = df_scans[(df_scans['Месяц'] == month) &
+                                    (df_scans['Страна'] == country) &
+                                    (df_scans['Сам себе'] == 'Монтажник')]
+
+                    a_h = len(set(data['UF_USER_ID']))  # adjusters himself
+                    adjusters_himself.append(a_h)
+
+                    data = df_scans[(df_scans['Месяц'] == month) &
+                                    (df_scans['Страна'] == country) &
+                                    (df_scans['Монтажник.1'] == 'Монтажник')]
+
+                    a_d = len(set(data['Монтажник']))  # adjusters for dealers
+                    adjusters_for_dealers.append(a_d)
+
+                    total_users_in_country.append(d_h + a_h + a_d)
+
+                scanned_users_by_months_list.append(dealers_himself)
+                scanned_users_by_months_list.append(adjusters_himself)
+                scanned_users_by_months_list.append(adjusters_for_dealers)
+                scanned_users_by_months_list.append(total_users_in_country)
+                scanned_users_by_months_list.append(['', '', ''])
+
+            index = [_ for _ in range(len(scanned_users_by_months_list))]
+            scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
+
+            scanned_users_by_months_df.to_excel(f"scanned_users_by_months {datetime.now().date()}.xlsx")
+            os.startfile(f"scanned_users_by_months {datetime.now().date()}.xlsx")

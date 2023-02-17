@@ -1,6 +1,4 @@
 import os
-from datetime import datetime
-import pandas as pd
 
 
 def authorization_during_period(start_date, end_date):
@@ -39,51 +37,6 @@ def authorization_during_period(start_date, end_date):
 
     authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
-
-
-# def data_about_points():
-#     """ Information about sum of points scanned in current year """
-#
-#     def total_amount_of_points_for_year(country_for_points, user_type):
-#         """Count the sum of points scanned in current year"""
-#
-#         amount_of_points = 0
-#
-#         if user_type == 'Дилер':
-#             data = df_scans[(df_scans['Страна'] == country_for_points) &
-#                             (df_scans['Сам себе'] == user_type)]
-#
-#             amount_of_points = sum(data['UF_POINTS'])
-#
-#         elif user_type == 'Монтажник':
-#             data = df_scans[(df_scans['Страна'] == country_for_points) &
-#                             (df_scans['Сам себе'] == user_type)]
-#
-#             amount_of_points = sum(data['UF_POINTS'])
-#
-#             data = df_scans[(df_scans['Страна'] == country_for_points) &
-#                             (df_scans['Монтажник.1'] == 'Монтажник')]
-#
-#             amount_of_points += sum(data['UF_POINTS'])
-#
-#         return amount_of_points
-#
-#     """ Output data about points """
-#     data_about_points_lst = []
-#     for country in countries:
-#         point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
-#         points_of_adjusters = total_amount_of_points_for_year(country, 'Монтажник')
-#         data_about_points_lst.append([country, 'Дилеры', point_of_dealers])
-#         data_about_points_lst.append(['', 'Монтажники', points_of_adjusters])
-#         data_about_points_lst.append(['', 'Итого:', point_of_dealers + points_of_adjusters])
-#         data_about_points_lst.append(['', '', ''])
-#
-#     columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
-#     index = [_ for _ in range(len(data_about_points_lst))]
-#     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
-#
-#     data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
-#     os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
 
 
 def top_users_by_scans(country: str, user_type: str):
@@ -258,71 +211,3 @@ def data_about_scans_during_period(start_date: datetime, end_date: datetime):
 
     data_about_scans_during_period_df.to_excel(f"data_about_scans_during_period_{start}-{end}.xlsx")
     os.startfile(f'data_about_scans_during_period_{start}-{end}.xlsx')
-
-
-def scanned_users_by_months():
-    """ Information about scanned users by country in each month """
-    months = {1: 'Январь',
-              2: 'Февраль',
-              3: 'Март',
-              4: 'Апрель',
-              5: 'Май',
-              6: 'Июнь',
-              7: 'Июль',
-              8: 'Август',
-              9: 'Сентябрь',
-              10: 'Октябрь',
-              11: 'Ноябрь',
-              12: 'Декабрь'}
-    df_scans['Месяц'] = df_scans['UF_CREATED_AT'].dt.month.map(months)
-
-    scanned_users_by_months_list = []
-    columns = ['Страна', 'Тип пользователей', 'Сканировали'] + [month for month in months.values()]
-
-    for country in countries:
-        dealers_himself = [country, 'Дилеры', 'Сами себе']
-        adjusters_himself = ['', 'Монтажники', 'Сами себе']
-        adjusters_for_dealers = ['', 'Монтажники', 'Сканировали дилеру']
-        total_users_in_country = ['', '', 'Итого:']
-
-        for month in months.values():
-            data = df_scans[(df_scans['Страна'] == country) &
-                            (df_scans['Месяц'] == month) &
-                            (df_scans['Сам себе'] == 'Дилер') &
-                            (df_scans['Монтажник.1'] == '')]
-
-            d_h = len(set(data['UF_USER_ID']))  # dealers himself
-            dealers_himself.append(d_h)
-
-            data = df_scans[(df_scans['Месяц'] == month) &
-                            (df_scans['Страна'] == country) &
-                            (df_scans['Сам себе'] == 'Монтажник')]
-
-            a_h = len(set(data['UF_USER_ID']))  # adjusters himself
-            adjusters_himself.append(a_h)
-
-            data = df_scans[(df_scans['Месяц'] == month) &
-                            (df_scans['Страна'] == country) &
-                            (df_scans['Монтажник.1'] == 'Монтажник')]
-
-            a_d = len(set(data['Монтажник']))  # adjusters for dealers
-            adjusters_for_dealers.append(a_d)
-
-            total_users_in_country.append(d_h + a_h + a_d)
-
-        scanned_users_by_months_list.append(dealers_himself)
-        scanned_users_by_months_list.append(adjusters_himself)
-        scanned_users_by_months_list.append(adjusters_for_dealers)
-        scanned_users_by_months_list.append(total_users_in_country)
-        scanned_users_by_months_list.append(['', '', ''])
-
-    index = [_ for _ in range(len(scanned_users_by_months_list))]
-    scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
-
-    scanned_users_by_months_df.to_excel(f"scanned_users_by_months {datetime.now().date()}.xlsx")
-    os.startfile(f"scanned_users_by_months {datetime.now().date()}.xlsx")
-
-
-def finish():
-    print('Всего хорошего!')
-    pass
