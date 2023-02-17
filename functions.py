@@ -3,44 +3,6 @@ from datetime import datetime
 import pandas as pd
 
 
-def check_file_with_scans():
-    """Check the availability necessary columns in file about scans"""
-
-    print("Загрузка данных по сканам...")
-
-    """Columns for check data about scans"""
-    df_scans_columns = ['UF_TYPE',
-                        'UF_POINTS',
-                        'Дилер+Монтажник',
-                        'UF_USER_ID',
-                        'Монтажник',
-                        'UF_CREATED_AT',
-                        'Страна',
-                        'Сам себе',
-                        'Монтажник.1']
-    data_about_scans = pd.read_excel('Данные по пользователям и сканам 2022.xlsx',
-                                     usecols=['UF_TYPE', 'UF_POINTS', 'Дилер+Монтажник', 'UF_USER_ID',
-                                              'Монтажник', 'UF_CREATED_AT', 'Страна', 'Сам себе',
-                                              'Монтажник.1'],
-                                     converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
-
-    data_about_scans['UF_CREATED_AT'] = pd.to_datetime(data_about_scans['UF_CREATED_AT'],
-                                                       format='%d.%m.%Y %H:%M:%S').dt.normalize()
-    data_about_scans = data_about_scans.fillna('')
-
-    for col_name in df_scans_columns:
-        if col_name not in data_about_scans.columns:
-            print(f"В загруженных данных не хватает столбца {col_name}")
-            return False
-
-    print("Данные по сканам загружены.")
-
-    return data_about_scans
-
-
-df_scans = check_file_with_scans()
-
-
 def authorization_during_period(start_date, end_date):
     """ information about the amount of authorized users for the period """
 

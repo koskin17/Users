@@ -2,10 +2,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from functions import *
 
+df_users = None
+countries = None
+df_scans = None
+
 
 class MainWindow(QDialog):
-    df_users = None
-    countries = None
 
     def __init__(self):
         super().__init__()
@@ -38,14 +40,16 @@ class MainWindow(QDialog):
         self.total_points_btn.move(0, 190)
         self.total_points_btn.clicked.connect(self.data_about_scan_users_in_current_year)
 
+        self.about_users_btn = QPushButton("Загрузить базу сканирований", self)
+        self.about_users_btn.move(0, 225)
+        self.about_users_btn.clicked.connect(self.check_file_with_scans)
+
     def check_file_with_users(self):
         """Loading and check file about users and the availability necessary columns in file about users"""
         global df_users
         global countries
 
-        file_with_data = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.*')
-
-        print("Загрузка данных по пользователям...")
+        file_with_users = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.xlsx')
 
         """Columns for check data about users"""
         df_users_columns = ['ID',
@@ -59,7 +63,7 @@ class MainWindow(QDialog):
                             'Отчество',
                             'E-Mail']
 
-        data_about_users = pd.read_excel(file_with_data[0],
+        data_about_users = pd.read_excel(file_with_users[0],
                                          na_values="NA",
                                          converters={"ID": int, "Баллы": int})
 
@@ -80,8 +84,8 @@ class MainWindow(QDialog):
                                                      'E-Mail']]
 
         data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
-                                                                data_about_users['Последняя авторизация в приложении'],
-                                                                format='%d.%m.%Y %H:%M:%S').dt.normalize()
+            data_about_users['Последняя авторизация в приложении'],
+            format='%d.%m.%Y %H:%M:%S').dt.normalize()
 
         data_about_users['Баллы'].fillna(0, inplace=True)
         data_about_users.fillna('', inplace=True)
@@ -109,6 +113,49 @@ class MainWindow(QDialog):
         countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
 
         QMessageBox.information(self, "Информация", "Данные по пользователям загружены.")
+
+    def check_file_with_scans(self):
+        """Check the availability necessary columns in file about scans"""
+        global df_scans
+
+        file_with_scans = QFileDialog.getOpenFileName(self, 'Open file', 'C:/', '*.xlsx')
+
+        print("Загрузка данных по сканам...")
+
+        """Columns for check data about scans"""
+        df_scans_columns = ['UF_TYPE',
+                            'UF_POINTS',
+                            'Дилер+Монтажник',
+                            'UF_USER_ID',
+                            'Монтажник',
+                            'UF_CREATED_AT',
+                            'Страна',
+                            'Сам себе',
+                            'Монтажник.1']
+        data_about_scans = pd.read_excel(file_with_scans[0],
+                                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
+
+        for col_name in df_scans_columns:
+            if col_name not in data_about_scans.columns:
+                QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
+                return False
+            else:
+                data_about_scans = data_about_scans[['UF_TYPE',
+                                                     'UF_POINTS',
+                                                     'Дилер+Монтажник',
+                                                     'UF_USER_ID',
+                                                     'Монтажник',
+                                                     'UF_CREATED_AT',
+                                                     'Страна',
+                                                     'Сам себе',
+                                                     'Монтажник.1']]
+
+        data_about_scans['UF_CREATED_AT'] = pd.to_datetime(data_about_scans['UF_CREATED_AT'],
+                                                           format='%d.%m.%Y %H:%M:%S').dt.normalize()
+        data_about_scans = data_about_scans.fillna('')
+        df_scans = data_about_scans
+
+        QMessageBox.information(self, "Информация", "Данные по сканам загружены.")
 
     @staticmethod
     def users_by_country():
