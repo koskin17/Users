@@ -36,13 +36,17 @@ class MainWindow(QDialog):
         self.total_points_btn.move(0, 155)
         self.total_points_btn.clicked.connect(self.points_by_users_and_countries)
 
+        self.about_users_btn = QPushButton("Загрузить базу сканирований", self)
+        self.about_users_btn.move(0, 190)
+        self.about_users_btn.clicked.connect(self.check_file_with_scans)
+
         self.total_points_btn = QPushButton("Кол-во сканировавших пользователей в текущем году на данный момент", self)
-        self.total_points_btn.move(0, 190)
+        self.total_points_btn.move(0, 225)
         self.total_points_btn.clicked.connect(self.data_about_scan_users_in_current_year)
 
-        self.about_users_btn = QPushButton("Загрузить базу сканирований", self)
-        self.about_users_btn.move(0, 225)
-        self.about_users_btn.clicked.connect(self.check_file_with_scans)
+        self.about_users_btn = QPushButton("Данные по насканированным баллам в текущем году на данный момент", self)
+        self.about_users_btn.move(0, 260)
+        self.about_users_btn.clicked.connect(self.data_about_points)
 
     def check_file_with_users(self):
         """Loading and check file about users and the availability necessary columns in file about users"""
@@ -157,38 +161,34 @@ class MainWindow(QDialog):
 
         QMessageBox.information(self, "Информация", "Данные по сканам загружены.")
 
-    @staticmethod
-    def users_by_country():
+    def users_by_country(self):
         """Formation general statistics about users by countries."""
+        if df_users is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
+        else:
+            list_for_df = []
+            for country in countries:
+                tmp_list = [country]
+                data = df_users[(df_users["Страна"] == country) &
+                                (df_users["Тип пользователя"] == "Дилер")]
+                tmp_list.append(len(data["ID"]))
 
-        list_for_df = []
-        for country in countries:
-            tmp_list = [country]
-            data = df_users[(df_users["Страна"] == country) &
-                            (df_users["Тип пользователя"] == "Дилер")]
-            tmp_list.append(len(data["ID"]))
+                data = df_users[(df_users["Страна"] == country) &
+                                (df_users["Тип пользователя"] == "Монтажник")]
+                tmp_list.append(len(data["ID"]))
 
-            data = df_users[(df_users["Страна"] == country) &
-                            (df_users["Тип пользователя"] == "Монтажник")]
-            tmp_list.append(len(data["ID"]))
+                tmp_list.insert(1, sum(tmp_list[1:]))
+                list_for_df.append(tmp_list)
 
-            tmp_list.insert(1, sum(tmp_list[1:]))
-            list_for_df.append(tmp_list)
+            columns_for_df = ['Страна', 'Всего пользователей', 'Дилеров', 'Монтажников']
+            index_for_df = range(len(list_for_df))
+            total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
+                                                                                                ascending=False)
+            total_stat_df.to_excel(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
+            os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
-        columns_for_df = ['Страна', 'Всего пользователей', 'Дилеров', 'Монтажников']
-        index_for_df = range(len(list_for_df))
-        total_stat_df = pd.DataFrame(list_for_df, index_for_df, columns_for_df).sort_values(by="Всего пользователей",
-                                                                                            ascending=False)
-        total_stat_df.to_excel(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
-        os.startfile(f'total_stats_about_users_for_{datetime.now().date()}.xlsx')
-
-    @staticmethod
-    def last_authorization_in_app():
+    def last_authorization_in_app(self):
         """ Information about last authorisation users in app by years"""
-
-        df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
-        df_users['Year'].fillna(0, inplace=True)
-        years = sorted([year for year in set(df_users['Year']) if year != 0])
 
         def amount_users_by_type(country_for_amount_users: str, user_type: str):
             """ Count amount users in country. """
@@ -217,29 +217,34 @@ class MainWindow(QDialog):
 
             return last
 
-        last_authorization_in_app_list = []
+        if df_users is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
+        else:
+            df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
+            df_users['Year'].fillna(0, inplace=True)
+            years = sorted([year for year in set(df_users['Year']) if year != 0])
+            last_authorization_in_app_list = []
 
-        for country in countries:
-            last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер')] +
-                                                  [last_authorization(year, 'Дилер', country) for year in years] +
-                                                  [last_authorization(0, 'Дилер', country)])
+            for country in countries:
+                last_authorization_in_app_list.append([country, 'Дилеры', amount_users_by_type(country, 'Дилер')] +
+                                                      [last_authorization(year, 'Дилер', country) for year in years] +
+                                                      [last_authorization(0, 'Дилер', country)])
 
-        last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
+            last_authorization_in_app_list.append(['', '', '', '', '', '', '', '', ])
 
-        for country in countries:
-            last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
-                                                  [last_authorization(year, 'Монтажник', country) for year in years] +
-                                                  [last_authorization(0, 'Монтажник', country)])
+            for country in countries:
+                last_authorization_in_app_list.append([country, 'Монтажники', amount_users_by_type(country, 'Монтажник')] +
+                                                      [last_authorization(year, 'Монтажник', country) for year in years] +
+                                                      [last_authorization(0, 'Монтажник', country)])
 
-        columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизовались']
-        index = [_ for _ in range(len(last_authorization_in_app_list))]
-        last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
+            columns = ['Страна', 'Тип пользователей', 'Всего в базе'] + [year for year in years] + ['Не авторизовались']
+            index = [_ for _ in range(len(last_authorization_in_app_list))]
+            last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
-        last_authorization_in_app_df.to_excel(f'last_authorization_in_app {datetime.now().date()}.xlsx')
-        os.startfile(f'last_authorization_in_app {datetime.now().date()}.xlsx')
+            last_authorization_in_app_df.to_excel(f'last_authorization_in_app {datetime.now().date()}.xlsx')
+            os.startfile(f'last_authorization_in_app {datetime.now().date()}.xlsx')
 
-    @staticmethod
-    def points_by_users_and_countries():
+    def points_by_users_and_countries(self):
         """ Information about points by users and countries """
 
         def sum_of_points(type_of_user: str, country_for_sum_points: str):
@@ -250,28 +255,31 @@ class MainWindow(QDialog):
 
             return sum(data['Баллы'])
 
-        points_by_users_and_countries_list = []
-        for country in countries:
-            total_points = 0
-            points = sum_of_points('Дилер', country)
-            points_by_users_and_countries_list.append([country, 'Дилеры', points])
-            total_points += points
-            points = sum_of_points('Монтажник', country)
-            points_by_users_and_countries_list.append([country, 'Монтажники', points])
-            total_points += points
-            points_by_users_and_countries_list.append(['Всего баллов:', '', total_points])
-            points_by_users_and_countries_list.append(['', '', ''])
+        if df_users is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
+        else:
+            points_by_users_and_countries_list = []
+            for country in countries:
+                total_points = 0
+                points = sum_of_points('Дилер', country)
+                points_by_users_and_countries_list.append([country, 'Дилеры', points])
+                total_points += points
+                points = sum_of_points('Монтажник', country)
+                points_by_users_and_countries_list.append([country, 'Монтажники', points])
+                total_points += points
+                points_by_users_and_countries_list.append(['Всего баллов:', '', total_points])
+                points_by_users_and_countries_list.append(['', '', ''])
 
-        columns = ['Страна', 'Тип пользователей', 'Сумма баллов']
-        index = [_ for _ in range(len(points_by_users_and_countries_list))]
-        points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
+            columns = ['Страна', 'Тип пользователей', 'Сумма баллов']
+            index = [_ for _ in range(len(points_by_users_and_countries_list))]
+            points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
-        points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
-        os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
+            points_by_users_and_countries_df.to_excel(f"points_by_users_and_countries {datetime.now().date()}.xlsx")
+            os.startfile(f'points_by_users_and_countries {datetime.now().date()}.xlsx')
 
-    @staticmethod
-    def data_about_scan_users_in_current_year():
+    def data_about_scan_users_in_current_year(self):
         """ Information about scanned users in current year """
+        global countries
 
         def scanned_users(country_for_scanned_users: str, user_type: str, himself=True):
             """ Count amount of users scanned in current year"""
@@ -300,21 +308,74 @@ class MainWindow(QDialog):
 
             return len(count)
 
-        table_about_scan_users_in_year_list = []
-        for country in countries:
-            dealers_himself = scanned_users(country, 'Дилер')
-            adjusters_himself = scanned_users(country, 'Монтажник')
-            adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
-            table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
-            table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
-            table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
-            table_about_scan_users_in_year_list.append(['', '', 'Итого:',
-                                                        dealers_himself + adjusters_himself + adjusters_for_dealers])
-            table_about_scan_users_in_year_list.append(['', '', '', ''])
+        if df_scans is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
+        else:
+            countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
+            table_about_scan_users_in_year_list = []
+            for country in countries:
+                dealers_himself = scanned_users(country, 'Дилер')
+                adjusters_himself = scanned_users(country, 'Монтажник')
+                adjusters_for_dealers = scanned_users(country, 'Монтажник', False)
+                table_about_scan_users_in_year_list.append([country, 'Дилеры', 'Сами себе', dealers_himself])
+                table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сами себе', adjusters_himself])
+                table_about_scan_users_in_year_list.append(['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
+                table_about_scan_users_in_year_list.append(['', '', 'Итого:',
+                                                            dealers_himself + adjusters_himself + adjusters_for_dealers])
+                table_about_scan_users_in_year_list.append(['', '', '', ''])
 
-        columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
-        index = [_ for _ in range(len(table_about_scan_users_in_year_list))]
-        table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
+            columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
+            index = [_ for _ in range(len(table_about_scan_users_in_year_list))]
+            table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
-        table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
-        os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
+            table_about_scan_users_in_year_df.to_excel(f"scanned_users_in_year {datetime.now().date()}.xlsx")
+            os.startfile(f'scanned_users_in_year {datetime.now().date()}.xlsx')
+
+    def data_about_points(self):
+        """ Information about sum of points scanned in current year """
+        global countries
+
+        def total_amount_of_points_for_year(country_for_points, user_type):
+            """Count the sum of points scanned in current year"""
+
+            amount_of_points = 0
+
+            if user_type == 'Дилер':
+                data = df_scans[(df_scans['Страна'] == country_for_points) &
+                                (df_scans['Сам себе'] == user_type)]
+
+                amount_of_points = sum(data['UF_POINTS'])
+
+            elif user_type == 'Монтажник':
+                data = df_scans[(df_scans['Страна'] == country_for_points) &
+                                (df_scans['Сам себе'] == user_type)]
+
+                amount_of_points = sum(data['UF_POINTS'])
+
+                data = df_scans[(df_scans['Страна'] == country_for_points) &
+                                (df_scans['Монтажник.1'] == 'Монтажник')]
+
+                amount_of_points += sum(data['UF_POINTS'])
+
+            return amount_of_points
+
+        if df_scans is None:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
+        else:
+            countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
+            """ Output data about points """
+            data_about_points_lst = []
+            for country in countries:
+                point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
+                points_of_adjusters = total_amount_of_points_for_year(country, 'Монтажник')
+                data_about_points_lst.append([country, 'Дилеры', point_of_dealers])
+                data_about_points_lst.append(['', 'Монтажники', points_of_adjusters])
+                data_about_points_lst.append(['', 'Итого:', point_of_dealers + points_of_adjusters])
+                data_about_points_lst.append(['', '', ''])
+
+            columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
+            index = [_ for _ in range(len(data_about_points_lst))]
+            data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
+
+            data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
+            os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")

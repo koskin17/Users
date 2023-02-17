@@ -41,49 +41,49 @@ def authorization_during_period(start_date, end_date):
     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
-def data_about_points():
-    """ Information about sum of points scanned in current year """
-
-    def total_amount_of_points_for_year(country_for_points, user_type):
-        """Count the sum of points scanned in current year"""
-
-        amount_of_points = 0
-
-        if user_type == 'Дилер':
-            data = df_scans[(df_scans['Страна'] == country_for_points) &
-                            (df_scans['Сам себе'] == user_type)]
-
-            amount_of_points = sum(data['UF_POINTS'])
-
-        elif user_type == 'Монтажник':
-            data = df_scans[(df_scans['Страна'] == country_for_points) &
-                            (df_scans['Сам себе'] == user_type)]
-
-            amount_of_points = sum(data['UF_POINTS'])
-
-            data = df_scans[(df_scans['Страна'] == country_for_points) &
-                            (df_scans['Монтажник.1'] == 'Монтажник')]
-
-            amount_of_points += sum(data['UF_POINTS'])
-
-        return amount_of_points
-
-    """ Output data about points """
-    data_about_points_lst = []
-    for country in countries:
-        point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
-        points_of_adjusters = total_amount_of_points_for_year(country, 'Монтажник')
-        data_about_points_lst.append([country, 'Дилеры', point_of_dealers])
-        data_about_points_lst.append(['', 'Монтажники', points_of_adjusters])
-        data_about_points_lst.append(['', 'Итого:', point_of_dealers + points_of_adjusters])
-        data_about_points_lst.append(['', '', ''])
-
-    columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
-    index = [_ for _ in range(len(data_about_points_lst))]
-    data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
-
-    data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
-    os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
+# def data_about_points():
+#     """ Information about sum of points scanned in current year """
+#
+#     def total_amount_of_points_for_year(country_for_points, user_type):
+#         """Count the sum of points scanned in current year"""
+#
+#         amount_of_points = 0
+#
+#         if user_type == 'Дилер':
+#             data = df_scans[(df_scans['Страна'] == country_for_points) &
+#                             (df_scans['Сам себе'] == user_type)]
+#
+#             amount_of_points = sum(data['UF_POINTS'])
+#
+#         elif user_type == 'Монтажник':
+#             data = df_scans[(df_scans['Страна'] == country_for_points) &
+#                             (df_scans['Сам себе'] == user_type)]
+#
+#             amount_of_points = sum(data['UF_POINTS'])
+#
+#             data = df_scans[(df_scans['Страна'] == country_for_points) &
+#                             (df_scans['Монтажник.1'] == 'Монтажник')]
+#
+#             amount_of_points += sum(data['UF_POINTS'])
+#
+#         return amount_of_points
+#
+#     """ Output data about points """
+#     data_about_points_lst = []
+#     for country in countries:
+#         point_of_dealers = total_amount_of_points_for_year(country, 'Дилер')
+#         points_of_adjusters = total_amount_of_points_for_year(country, 'Монтажник')
+#         data_about_points_lst.append([country, 'Дилеры', point_of_dealers])
+#         data_about_points_lst.append(['', 'Монтажники', points_of_adjusters])
+#         data_about_points_lst.append(['', 'Итого:', point_of_dealers + points_of_adjusters])
+#         data_about_points_lst.append(['', '', ''])
+#
+#     columns = ['Страна', 'Тип пользователей', 'Насканировано баллов']
+#     index = [_ for _ in range(len(data_about_points_lst))]
+#     data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
+#
+#     data_about_points_df.to_excel(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
+#     os.startfile(f"all_points_of_users_by_country {datetime.now().date()}.xlsx")
 
 
 def top_users_by_scans(country: str, user_type: str):
