@@ -1,66 +1,71 @@
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from functions import *
 from datetime import datetime
 import pandas as pd
 
-df_users = None
-countries = None
-df_scans = None
+df_users = pd.DataFrame
+countries = set()
+df_scans = pd.DataFrame
 
 
 class MainWindow(QDialog):
 
     def __init__(self):
         super().__init__()
+        # Set size of main window
+        self.resize(620, 800)
         # set Title for main windows
         self.setWindowTitle("Данные по пользователя и сканам в приложении AXOR")
         self.setWindowIcon(QIcon('axor.ico'))
-        # # Set size of main window
-        self.resize(600, 400)
+        self.windows_label = QLabel(self)
+        window_label = QPixmap('axor_logo.png')
+        self.windows_label.setPixmap(window_label)
 
-        self.about_users_btn = QPushButton("Загрузить базу пользователей", self)
-        self.about_users_btn.move(0, 20)
-        self.about_users_btn.clicked.connect(self.check_file_with_users)
+        self.btn_about_users = QPushButton("Загрузить базу пользователей", self)
+        self.btn_about_users.move(0, 175)
+        self.btn_about_users.clicked.connect(self.check_file_with_users)
 
-        self.users_in_countries_bt = QPushButton("Пользователи по странам", self)
-        self.users_in_countries_bt.move(0, 50)
-        self.users_in_countries_bt.clicked.connect(self.users_by_country)
+        self.btn_users_by_country = QPushButton("Пользователи по странам", self)
+        self.btn_users_by_country.move(0, 205)
+        self.btn_users_by_country.clicked.connect(self.users_by_country)
 
-        self.authorization_in_app_btn = QPushButton("Авторизация пользователей в приложении", self)
-        self.authorization_in_app_btn.move(0, 85)
-        self.authorization_in_app_btn.clicked.connect(self.last_authorization_in_app)
+        self.btn_last_authorization_in_app = QPushButton("Авторизация пользователей в приложении", self)
+        self.btn_last_authorization_in_app.move(0, 235)
+        self.btn_last_authorization_in_app.clicked.connect(self.last_authorization_in_app)
 
-        self.authorization_in_period_btn = QPushButton("ТЕСТ Авторизация пользователей за период", self)
-        self.authorization_in_period_btn.move(0, 120)
+        self.btn_authorization_in_period = QPushButton("ТЕСТ Авторизация пользователей за период", self)
+        self.btn_authorization_in_period.move(0, 265)
 
-        self.total_points_btn = QPushButton("Общая информация по баллам на текущий момент", self)
-        self.total_points_btn.move(0, 155)
-        self.total_points_btn.clicked.connect(self.points_by_users_and_countries)
+        self.btn_points_by_users_and_countries = QPushButton("Общая информация по баллам на текущий момент", self)
+        self.btn_points_by_users_and_countries.move(0, 295)
+        self.btn_points_by_users_and_countries.clicked.connect(self.points_by_users_and_countries)
 
-        self.about_users_btn = QPushButton("Загрузить базу сканирований", self)
-        self.about_users_btn.move(0, 190)
-        self.about_users_btn.clicked.connect(self.check_file_with_scans)
+        self.btn_about_scans = QPushButton("Загрузить базу сканирований", self)
+        self.btn_about_scans.move(0, 345)
+        self.btn_about_scans.clicked.connect(self.check_file_with_scans)
 
-        self.total_points_btn = QPushButton("Кол-во сканировавших пользователей в текущем году на данный момент", self)
-        self.total_points_btn.move(0, 225)
-        self.total_points_btn.clicked.connect(self.data_about_scan_users_in_current_year)
+        self.btn_data_about_scan_users_in_current_year = QPushButton(
+                                            "Кол-во сканировавших пользователей в текущем году на данный момент", self)
+        self.btn_data_about_scan_users_in_current_year.move(0, 375)
+        self.btn_data_about_scan_users_in_current_year.clicked.connect(self.data_about_scan_users_in_current_year)
 
-        self.about_users_btn = QPushButton("Данные по насканированным баллам в текущем году на данный момент", self)
-        self.about_users_btn.move(0, 260)
-        self.about_users_btn.clicked.connect(self.data_about_points)
+        self.btn_data_about_points = QPushButton("Данные по насканированным баллам в текущем году на данный момент",
+                                                 self)
+        self.btn_data_about_points.move(0, 405)
+        self.btn_data_about_points.clicked.connect(self.data_about_points)
 
-        self.about_users_btn = QPushButton("Кол-во сканировавших пользователей в текущем году по месяцам", self)
-        self.about_users_btn.move(0, 295)
-        self.about_users_btn.clicked.connect(self.scanned_users_by_months)
+        self.btn_scanned_users_by_months = QPushButton("Кол-во сканировавших пользователей в текущем году по месяцам",
+                                                       self)
+        self.btn_scanned_users_by_months.move(0, 435)
+        self.btn_scanned_users_by_months.clicked.connect(self.scanned_users_by_months)
 
-        self.about_users_btn = QPushButton("ТЕСТ Кол-во пользователей и насканированных баллов за период", self)
-        self.about_users_btn.move(0, 330)
-        self.about_users_btn.clicked.connect(self.top_users_by_scans)
+        self.btn_top_users_by_scans = QPushButton("ТЕСТ Кол-во пользователей и насканированных баллов за период", self)
+        self.btn_top_users_by_scans.move(0, 465)
 
-        self.about_users_btn = QPushButton("ТОП пользователей по сканам в текущем году на данный момент", self)
-        self.about_users_btn.move(0, 365)
-        self.about_users_btn.clicked.connect(self.top_users_by_scans)
+        self.btn_top_users_by_scans = QPushButton("ТОП пользователей по сканам в текущем году на данный момент", self)
+        self.btn_top_users_by_scans.move(0, 495)
+        self.btn_top_users_by_scans.clicked.connect(self.top_users_by_scans)
 
     def check_file_with_users(self):
         """Loading and check file about users and the availability necessary columns in file about users"""
@@ -177,7 +182,7 @@ class MainWindow(QDialog):
 
     def users_by_country(self):
         """Formation general statistics about users by countries."""
-        if df_users is None:
+        if df_users.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
         else:
             list_for_df = []
@@ -232,7 +237,7 @@ class MainWindow(QDialog):
 
             return last
 
-        if df_users is None:
+        if df_users.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
         else:
             df_users['Year'] = df_users['Последняя авторизация в приложении'].dt.year
@@ -271,7 +276,7 @@ class MainWindow(QDialog):
 
             return sum(data['Баллы'])
 
-        if df_users is None:
+        if df_users.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
         else:
             points_by_users_and_countries_list = []
@@ -324,7 +329,7 @@ class MainWindow(QDialog):
 
             return len(count)
 
-        if df_scans is None:
+        if df_scans.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
         else:
             countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
@@ -338,7 +343,9 @@ class MainWindow(QDialog):
                 table_about_scan_users_in_year_list.append(
                     ['', 'Монтажники', 'Сканировали дилеру', adjusters_for_dealers])
                 table_about_scan_users_in_year_list.append(['', '', 'Итого:',
-                                                            dealers_himself + adjusters_himself + adjusters_for_dealers])
+                                                            dealers_himself +
+                                                            adjusters_himself +
+                                                            adjusters_for_dealers])
                 table_about_scan_users_in_year_list.append(['', '', '', ''])
 
             columns = ['Страна', 'Тип пользователей', 'Сканировали', 'Кол-во пользователей']
@@ -376,7 +383,7 @@ class MainWindow(QDialog):
 
             return amount_of_points
 
-        if df_scans is None:
+        if df_scans.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
         else:
             countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame
@@ -401,7 +408,7 @@ class MainWindow(QDialog):
         """ Information about scanned users by country in each month """
         global countries
 
-        if df_scans is None:
+        if df_scans.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
         else:
             months = {1: 'Январь',
@@ -472,9 +479,9 @@ class MainWindow(QDialog):
         """ TOP dealers / adjusters by scans"""
         global countries
 
-        if df_users is None:
+        if df_users.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
-        elif df_scans is None:
+        elif df_scans.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
         else:
             countries = list(set(df_scans["Страна"]))  # list of countries in DataFrame

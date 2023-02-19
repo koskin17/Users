@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import pandas as pd
 
+
 def authorization_during_period(start_date, end_date):
     """ information about the amount of authorized users for the period """
 
