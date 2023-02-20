@@ -83,68 +83,73 @@ class MainWindow(QDialog):
 
         file_with_users = QFileDialog.getOpenFileName(self, 'Open file', f'{Path.home() / "Desktop"}', '*.xlsx')
 
-        """Columns for check data about users"""
-        df_users_columns = ['ID',
-                            'Баллы',
-                            'Последняя авторизация в приложении',
-                            'Город работы',
-                            'Страна',
-                            'Тип пользователя',
-                            'Фамилия',
-                            'Имя',
-                            'Отчество',
-                            'E-Mail']
+        if file_with_users[0] == '':
+            pass
+        else:
+            print(file_with_users)
 
-        data_about_users = pd.read_excel(file_with_users[0],
-                                         na_values="NA",
-                                         converters={"ID": int, "Баллы": int})
+            """Columns for check data about users"""
+            df_users_columns = ['ID',
+                                'Баллы',
+                                'Последняя авторизация в приложении',
+                                'Город работы',
+                                'Страна',
+                                'Тип пользователя',
+                                'Фамилия',
+                                'Имя',
+                                'Отчество',
+                                'E-Mail']
 
-        for col_name in df_users_columns:
-            if col_name not in data_about_users.columns:
-                QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
-                return False
-            else:
-                data_about_users = data_about_users[['ID',
-                                                     'Баллы',
-                                                     'Последняя авторизация в приложении',
-                                                     'Город работы',
-                                                     'Страна',
-                                                     'Тип пользователя',
-                                                     'Фамилия',
-                                                     'Имя',
-                                                     'Отчество',
-                                                     'E-Mail']]
+            data_about_users = pd.read_excel(file_with_users[0],
+                                             na_values="NA",
+                                             converters={"ID": int, "Баллы": int})
 
-        data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
-            data_about_users['Последняя авторизация в приложении'],
-            format='%d.%m.%Y %H:%M:%S').dt.normalize()
+            for col_name in df_users_columns:
+                if col_name not in data_about_users.columns:
+                    QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
+                    return False
+                else:
+                    data_about_users = data_about_users[['ID',
+                                                         'Баллы',
+                                                         'Последняя авторизация в приложении',
+                                                         'Город работы',
+                                                         'Страна',
+                                                         'Тип пользователя',
+                                                         'Фамилия',
+                                                         'Имя',
+                                                         'Отчество',
+                                                         'E-Mail']]
 
-        data_about_users['Баллы'].fillna(0, inplace=True)
-        data_about_users.fillna('', inplace=True)
+            data_about_users['Последняя авторизация в приложении'] = pd.to_datetime(
+                data_about_users['Последняя авторизация в приложении'],
+                format='%d.%m.%Y %H:%M:%S').dt.normalize()
 
-        """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
-        data_about_users = data_about_users[(data_about_users['Страна'] != '') &
-                                            (data_about_users['Тип пользователя'] != 'Клиент')]
+            data_about_users['Баллы'].fillna(0, inplace=True)
+            data_about_users.fillna('', inplace=True)
 
-        """List of test accounts, excludes from counting"""
-        exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova',
-                         'ostashenko',
-                         'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
-                         'kosits']
+            """Clean spam (exception empty row in "Страна" and 'Клиент' as spam) and test accounts in DataFrame"""
+            data_about_users = data_about_users[(data_about_users['Страна'] != '') &
+                                                (data_about_users['Тип пользователя'] != 'Клиент')]
 
-        """Creating list of excluded accounts"""
-        exclude_list = set()
-        for email in data_about_users['E-Mail']:
-            for i in exclude_users:
-                if i in email:
-                    exclude_list.add(email)
+            """List of test accounts, excludes from counting"""
+            exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova',
+                             'ostashenko',
+                             'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
+                             'kosits']
 
-        """Clean DataFrame from exclude accounts"""
-        data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
-        df_users = data_about_users
-        countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
+            """Creating list of excluded accounts"""
+            exclude_list = set()
+            for email in data_about_users['E-Mail']:
+                for i in exclude_users:
+                    if i in email:
+                        exclude_list.add(email)
 
-        QMessageBox.information(self, "Информация", "Данные по пользователям загружены.")
+            """Clean DataFrame from exclude accounts"""
+            data_about_users = data_about_users.loc[~data_about_users['E-Mail'].isin(exclude_list)]
+            df_users = data_about_users
+            countries = list(set(df_users["Страна"]))  # list of countries in DataFrame
+
+            QMessageBox.information(self, "Информация", "Данные по пользователям загружены.")
 
     def check_file_with_scans(self):
         """Check the availability necessary columns in file about scans"""
@@ -152,40 +157,43 @@ class MainWindow(QDialog):
 
         file_with_scans = QFileDialog.getOpenFileName(self, 'Open file', f'{Path.home() / "Desktop"}', '*.xlsx')
 
-        """Columns for check data about scans"""
-        df_scans_columns = ['UF_TYPE',
-                            'UF_POINTS',
-                            'Дилер+Монтажник',
-                            'UF_USER_ID',
-                            'Монтажник',
-                            'UF_CREATED_AT',
-                            'Страна',
-                            'Сам себе',
-                            'Монтажник.1']
-        data_about_scans = pd.read_excel(file_with_scans[0],
-                                         converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
+        if file_with_scans[0] == '':
+            pass
+        else:
+            """Columns for check data about scans"""
+            df_scans_columns = ['UF_TYPE',
+                                'UF_POINTS',
+                                'Дилер+Монтажник',
+                                'UF_USER_ID',
+                                'Монтажник',
+                                'UF_CREATED_AT',
+                                'Страна',
+                                'Сам себе',
+                                'Монтажник.1']
+            data_about_scans = pd.read_excel(file_with_scans[0],
+                                             converters={"UF_POINTS": int, "UF_USER_ID": int, "Монтажник": int})
 
-        for col_name in df_scans_columns:
-            if col_name not in data_about_scans.columns:
-                QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
-                return False
-            else:
-                data_about_scans = data_about_scans[['UF_TYPE',
-                                                     'UF_POINTS',
-                                                     'Дилер+Монтажник',
-                                                     'UF_USER_ID',
-                                                     'Монтажник',
-                                                     'UF_CREATED_AT',
-                                                     'Страна',
-                                                     'Сам себе',
-                                                     'Монтажник.1']]
+            for col_name in df_scans_columns:
+                if col_name not in data_about_scans.columns:
+                    QMessageBox.warning(self, "Внимание!", f"В загруженных данных не хватает столбца {col_name}")
+                    return False
+                else:
+                    data_about_scans = data_about_scans[['UF_TYPE',
+                                                         'UF_POINTS',
+                                                         'Дилер+Монтажник',
+                                                         'UF_USER_ID',
+                                                         'Монтажник',
+                                                         'UF_CREATED_AT',
+                                                         'Страна',
+                                                         'Сам себе',
+                                                         'Монтажник.1']]
 
-        data_about_scans['UF_CREATED_AT'] = pd.to_datetime(data_about_scans['UF_CREATED_AT'],
-                                                           format='%d.%m.%Y %H:%M:%S').dt.normalize()
-        data_about_scans = data_about_scans.fillna('')
-        df_scans = data_about_scans
+            data_about_scans['UF_CREATED_AT'] = pd.to_datetime(data_about_scans['UF_CREATED_AT'],
+                                                               format='%d.%m.%Y %H:%M:%S').dt.normalize()
+            data_about_scans = data_about_scans.fillna('')
+            df_scans = data_about_scans
 
-        QMessageBox.information(self, "Информация", "Данные по сканам загружены.")
+            QMessageBox.information(self, "Информация", "Данные по сканам загружены.")
 
     def users_by_country(self):
         """Formation general statistics about users by countries."""
@@ -276,7 +284,6 @@ class MainWindow(QDialog):
 
     def authorization_during_period(self):
         """ information about the amount of authorized users for the period """
-        start_date = datetime(1900, 1, 1)
         end_date = datetime(1900, 1, 1)
 
         def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
@@ -304,9 +311,13 @@ class MainWindow(QDialog):
                         try:
                             end_date = datetime.strptime(end_date, '%d.%m.%Y')
                         except ValueError:
-                            print('Конечная дата введена неверно!')
-                except ValueError:
-                    print('Начальная дата введена неверно!')
+                            QMessageBox.warning(self, "Внимание!", "Конечная дата введена неверно!")
+                except TypeError or ValueError:
+                    QMessageBox.warning(self, "Внимание!", "Начальная дата введена неверно!")
+                    # TODO разобраться с исключениями
+                    pass
+                # except ValueError:
+                #     QMessageBox.warning(self, "Внимание!", "Начальная дата введена неверно!")
 
                 total_amount = 0
                 authorization_during_period_list = []
