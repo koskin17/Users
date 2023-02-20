@@ -276,8 +276,8 @@ class MainWindow(QDialog):
 
     def authorization_during_period(self):
         """ information about the amount of authorized users for the period """
-
-        # TODO добавить получение start_date и end_date
+        start_date = datetime(1900, 1, 1)
+        end_date = datetime(1900, 1, 1)
 
         def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
                         authorization_in_country: str):
@@ -290,28 +290,47 @@ class MainWindow(QDialog):
 
             return len(data['ID'])
 
-        total_amount = 0
-        authorization_during_period_list = []
-        for country in countries:
-            amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
-            authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
-            total_amount += amount_of_dealers
-            amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
-            authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
-            total_amount += amount_of_adjusters
-            authorization_during_period_list.append(['', '', ''])
+        if df_users.empty:
+            QMessageBox.warning(self, "Внимание!", "Загрузите данные по пользователям.")
+        else:
+            start_date, btn = QInputDialog.getText(self, "Начало периода",
+                                                   "Укажите начало периода в формате mm.dd.yyyy (через точку): ")
+            if btn:
+                try:
+                    start_date = datetime.strptime(start_date, '%d.%m.%Y')
+                    end_date, btn = QInputDialog.getText(self, "Конец периода",
+                                                         "Укажите конец периода в формате mm.dd.yyyy (через точку): ")
+                    if btn:
+                        try:
+                            end_date = datetime.strptime(end_date, '%d.%m.%Y')
+                        except ValueError:
+                            print('Конечная дата введена неверно!')
+                except ValueError:
+                    print('Начальная дата введена неверно!')
 
-        authorization_during_period_list.append(['Всего:', '', total_amount])
+                total_amount = 0
+                authorization_during_period_list = []
+                for country in countries:
+                    amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
+                    authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
+                    total_amount += amount_of_dealers
+                    amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
+                    authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
+                    total_amount += amount_of_adjusters
+                    authorization_during_period_list.append(['', '', ''])
 
-        columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
-        index = [_ for _ in range(len(authorization_during_period_list))]
-        authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
+                authorization_during_period_list.append(['Всего:', '', total_amount])
 
-        start = datetime.strftime(start_date, "%d-%m-%Y")
-        end = datetime.strftime(end_date, "%d-%m-%Y")
+                columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
+                index = [_ for _ in range(len(authorization_during_period_list))]
+                authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
 
-        authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
-        os.startfile(f'authorization_during_period {start}-{end}.xlsx')
+                start = datetime.strftime(start_date, "%d-%m-%Y")
+                end = datetime.strftime(end_date, "%d-%m-%Y")
+
+                authorization_during_period_df.to_excel(
+                    f'{dir_for_data}/authorization_during_period {start}-{end}.xlsx')
+                os.startfile(f'{dir_for_data}/authorization_during_period {start}-{end}.xlsx')
 
     def points_by_users_and_countries(self):
         """ Information about points by users and countries """
