@@ -42,8 +42,9 @@ class MainWindow(QDialog):
         self.btn_last_authorization_in_app.move(0, 235)
         self.btn_last_authorization_in_app.clicked.connect(self.last_authorization_in_app)
 
-        self.btn_authorization_in_period = QPushButton("ТЕСТ Авторизация пользователей за период", self)
+        self.btn_authorization_in_period = QPushButton("Авторизация пользователей за период", self)
         self.btn_authorization_in_period.move(0, 265)
+
 
         self.btn_points_by_users_and_countries = QPushButton("Общая информация по баллам на текущий момент", self)
         self.btn_points_by_users_and_countries.move(0, 295)
@@ -58,7 +59,7 @@ class MainWindow(QDialog):
         self.btn_data_about_scan_users_in_current_year.move(0, 375)
         self.btn_data_about_scan_users_in_current_year.clicked.connect(self.data_about_scan_users_in_current_year)
 
-        self.btn_data_about_points = QPushButton("Данные по насканированным баллам в текущем году на данный момент",
+        self.btn_data_about_points = QPushButton("Насканировано баллов в текущем году на данный момент",
                                                  self)
         self.btn_data_about_points.move(0, 405)
         self.btn_data_about_points.clicked.connect(self.data_about_points)
@@ -150,8 +151,6 @@ class MainWindow(QDialog):
         global df_scans
 
         file_with_scans = QFileDialog.getOpenFileName(self, 'Open file', f'{Path.home() / "Desktop"}', '*.xlsx')
-
-        print("Загрузка данных по сканам...")
 
         """Columns for check data about scans"""
         df_scans_columns = ['UF_TYPE',
