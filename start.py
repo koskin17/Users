@@ -13,22 +13,7 @@ def main():
         print()
         print()
         print()
-        print('9. Кол-во пользователей и насканированных баллов за период.')
-
-        choice = input('Укажите номер пункта: ').lower()
-        match choice:
-            case '9':
-                try:
-                    start_date = datetime.strptime(
-                        input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
-                    try:
-                        end_date = datetime.strptime(
-                            input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
-                        data_about_scans_during_period(start_date, end_date)
-                    except ValueError:
-                        print('Дата введена неверно!')
-                except ValueError:
-                    print('Дата введена неверно!')
+        print()
 
 
 ''' Start main program '''
