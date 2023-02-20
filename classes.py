@@ -69,7 +69,8 @@ class MainWindow(QDialog):
         self.btn_scanned_users_by_months.move(0, 435)
         self.btn_scanned_users_by_months.clicked.connect(self.scanned_users_by_months)
 
-        self.btn_data_about_scans_during_period = QPushButton("Кол-во пользователей и насканированных баллов за период", self)
+        self.btn_data_about_scans_during_period = QPushButton("Кол-во пользователей и насканированных баллов за период",
+                                                              self)
         self.btn_data_about_scans_during_period.move(0, 465)
         self.btn_data_about_scans_during_period.clicked.connect(self.data_about_scans_during_period)
 
@@ -592,6 +593,8 @@ class MainWindow(QDialog):
                                      himself=True):
             """ Count sum of scanned points during period """
 
+            data = pd.Dataframe
+
             if himself:
                 if user_type == 'Дилер':
                     data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
@@ -612,6 +615,9 @@ class MainWindow(QDialog):
                                 (df_scans['Монтажник.1'] == 'Монтажник')]
 
             return sum(data['UF_POINTS'])
+
+        start_date = datetime(1900, 1, 1)
+        end_date = datetime(1900, 1, 1)
 
         if df_scans.empty:
             QMessageBox.warning(self, "Внимание!", "Загрузите данные по сканам.")
