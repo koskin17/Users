@@ -44,7 +44,7 @@ class MainWindow(QDialog):
 
         self.btn_authorization_in_period = QPushButton("Авторизация пользователей за период", self)
         self.btn_authorization_in_period.move(0, 265)
-
+        self.btn_authorization_in_period.clicked.connect(self.authorization_during_period)
 
         self.btn_points_by_users_and_countries = QPushButton("Общая информация по баллам на текущий момент", self)
         self.btn_points_by_users_and_countries.move(0, 295)
@@ -273,6 +273,45 @@ class MainWindow(QDialog):
             last_authorization_in_app_df.to_excel(
                 f'{dir_for_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
             os.startfile(f'{dir_for_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
+
+    def authorization_during_period(self):
+        """ information about the amount of authorized users for the period """
+
+        # TODO добавить получение start_date и end_date
+
+        def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
+                        authorization_in_country: str):
+            """ Counting the amount of users authorized in App during period """
+
+            data = df_users[(df_users['Тип пользователя'] == user_type) &
+                            (df_users['Страна'] == authorization_in_country) &
+                            (df_users['Последняя авторизация в приложении'] >= start_period_of_authorisation) &
+                            (df_users['Последняя авторизация в приложении'] <= end_period_of_authorization)]
+
+            return len(data['ID'])
+
+        total_amount = 0
+        authorization_during_period_list = []
+        for country in countries:
+            amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
+            authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
+            total_amount += amount_of_dealers
+            amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
+            authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
+            total_amount += amount_of_adjusters
+            authorization_during_period_list.append(['', '', ''])
+
+        authorization_during_period_list.append(['Всего:', '', total_amount])
+
+        columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
+        index = [_ for _ in range(len(authorization_during_period_list))]
+        authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
+
+        start = datetime.strftime(start_date, "%d-%m-%Y")
+        end = datetime.strftime(end_date, "%d-%m-%Y")
+
+        authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
+        os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
     def points_by_users_and_countries(self):
         """ Information about points by users and countries """
