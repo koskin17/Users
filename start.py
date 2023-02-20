@@ -6,7 +6,7 @@ def main():
     choice = ''
     while choice != 'q':
         print()
-        print('3: Авторизация пользователей за период')
+        print()
         print()
         print()
         print()
@@ -17,18 +17,6 @@ def main():
 
         choice = input('Укажите номер пункта: ').lower()
         match choice:
-            case '3':
-                try:
-                    start_date = datetime.strptime(
-                        input('Укажите дату начала периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
-                    try:
-                        end_date = datetime.strptime(
-                            input('Укажите дату конца периода в формате mm.dd.yyyy (через точку): '), '%d.%m.%Y')
-                        authorization_during_period(start_date, end_date)
-                    except ValueError:
-                        print('Конечная дата периода введена неверно!')
-                except ValueError:
-                    print('Начальная дата периода введена неверно!')
             case '9':
                 try:
                     start_date = datetime.strptime(
