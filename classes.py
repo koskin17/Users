@@ -1,9 +1,9 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon, QPixmap
-from functions import *
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
+import os
 
 df_users = pd.DataFrame
 countries = set()
