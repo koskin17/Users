@@ -3,42 +3,42 @@ from datetime import datetime
 import pandas as pd
 
 
-def authorization_during_period(start_date, end_date):
-    """ information about the amount of authorized users for the period """
-
-    def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
-                    authorization_in_country: str):
-        """ Counting the amount of users authorized in App during period """
-
-        data = df_users[(df_users['Тип пользователя'] == user_type) &
-                        (df_users['Страна'] == authorization_in_country) &
-                        (df_users['Последняя авторизация в приложении'] >= start_period_of_authorisation) &
-                        (df_users['Последняя авторизация в приложении'] <= end_period_of_authorization)]
-
-        return len(data['ID'])
-
-    total_amount = 0
-    authorization_during_period_list = []
-    for country in countries:
-        amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
-        authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
-        total_amount += amount_of_dealers
-        amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
-        authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
-        total_amount += amount_of_adjusters
-        authorization_during_period_list.append(['', '', ''])
-
-    authorization_during_period_list.append(['Всего:', '', total_amount])
-
-    columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
-    index = [_ for _ in range(len(authorization_during_period_list))]
-    authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
-
-    start = datetime.strftime(start_date, "%d-%m-%Y")
-    end = datetime.strftime(end_date, "%d-%m-%Y")
-
-    authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
-    os.startfile(f'authorization_during_period {start}-{end}.xlsx')
+# def authorization_during_period(start_date, end_date):
+#     """ information about the amount of authorized users for the period """
+#
+#     def period_data(start_period_of_authorisation: datetime, end_period_of_authorization: datetime, user_type: str,
+#                     authorization_in_country: str):
+#         """ Counting the amount of users authorized in App during period """
+#
+#         data = df_users[(df_users['Тип пользователя'] == user_type) &
+#                         (df_users['Страна'] == authorization_in_country) &
+#                         (df_users['Последняя авторизация в приложении'] >= start_period_of_authorisation) &
+#                         (df_users['Последняя авторизация в приложении'] <= end_period_of_authorization)]
+#
+#         return len(data['ID'])
+#
+#     total_amount = 0
+#     authorization_during_period_list = []
+#     for country in countries:
+#         amount_of_dealers = period_data(start_date, end_date, 'Дилер', country)
+#         authorization_during_period_list.append([country, 'Дилеры', amount_of_dealers])
+#         total_amount += amount_of_dealers
+#         amount_of_adjusters = period_data(start_date, end_date, 'Монтажник', country)
+#         authorization_during_period_list.append([country, 'Монтажники', amount_of_adjusters])
+#         total_amount += amount_of_adjusters
+#         authorization_during_period_list.append(['', '', ''])
+#
+#     authorization_during_period_list.append(['Всего:', '', total_amount])
+#
+#     columns = ['Страна', 'Тип пользователей', 'Авторизовалось пользователей']
+#     index = [_ for _ in range(len(authorization_during_period_list))]
+#     authorization_during_period_df = pd.DataFrame(authorization_during_period_list, index, columns)
+#
+#     start = datetime.strftime(start_date, "%d-%m-%Y")
+#     end = datetime.strftime(end_date, "%d-%m-%Y")
+#
+#     authorization_during_period_df.to_excel(f"authorization_during_period {start}-{end}.xlsx")
+#     os.startfile(f'authorization_during_period {start}-{end}.xlsx')
 
 
 def data_about_scans_during_period(start_date: datetime, end_date: datetime):
