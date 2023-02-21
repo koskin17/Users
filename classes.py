@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QMessageBox, QFileDialog, QInputDialog
 from PyQt5.QtGui import QIcon, QPixmap
 from datetime import datetime
 import pandas as pd
