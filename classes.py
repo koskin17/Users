@@ -83,6 +83,8 @@ class MainWindow(QDialog):
         global df_users
         global countries
 
+        QMessageBox.information(self, "Важно!", "Перед загрузкой убедитесь, что файл с данными в формате .XLSX")
+
         file_with_users = QFileDialog.getOpenFileName(self, 'Open file', f'{Path.home() / "Desktop"}', '*.xlsx')
 
         if file_with_users[0] == '':
@@ -132,10 +134,9 @@ class MainWindow(QDialog):
                                                 (data_about_users['Тип пользователя'] != 'Клиент')]
 
             """List of test accounts, excludes from counting"""
-            exclude_users = ['kazah89', 'sanin, ''samoilov', 'axorindustry', 'kreknina', 'zeykin', 'berdnikova',
-                             'ostashenko',
-                             'skalar', 'test', 'malyigor', 'ihormaly', 'axor',
-                             'kosits']
+            exclude_users = ['kazah89', 'kazah1122', 'russia89', 'sanin, ''samoilov', 'axorindustry', 'kreknina',
+                             'zeykin', 'berdnikova', 'ostashenko', 'bellaruss89@gmail.com', 'skalar', 'test',
+                             'malyigor', 'ihormaly', 'axor', 'kosits']
 
             """Creating list of excluded accounts"""
             exclude_list = set()
@@ -154,6 +155,8 @@ class MainWindow(QDialog):
     def check_file_with_scans(self):
         """Check the availability necessary columns in file about scans"""
         global df_scans
+
+        QMessageBox.information(self, "Важно!", "Перед загрузкой убедитесь, что файл с данными в формате .XLSX")
 
         file_with_scans = QFileDialog.getOpenFileName(self, 'Open file', f'{Path.home() / "Desktop"}', '*.xlsx')
 
@@ -593,8 +596,6 @@ class MainWindow(QDialog):
                                      himself=True):
             """ Count sum of scanned points during period """
 
-            data = pd.Dataframe
-
             if himself:
                 if user_type == 'Дилер':
                     data = df_scans[(df_scans['UF_CREATED_AT'] >= start_period_for_sum_points) &
@@ -727,9 +728,9 @@ class MainWindow(QDialog):
                     top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
 
                     top_users_by_scans_list_df.to_excel(
-                        f"TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
-                    os.startfile(f"TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx")
-
+                        f'{dir_for_output_data}/TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
+                    os.startfile(
+                        f'{dir_for_output_data}/TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
                 elif user_type[0] == 'Монтажник':
                     data = df_scans[(df_scans['Страна'] == country[0]) &
                                     (df_scans['Сам себе'] == user_type[0])]
