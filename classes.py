@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 
 
-"""Снова пробы Git """
+"""Изменил"""
 df_users = pd.DataFrame
 countries = set()
 df_scans = pd.DataFrame
