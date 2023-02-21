@@ -14,7 +14,7 @@ try:
 except FileExistsError:
     pass
 
-dir_for_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
+dir_for_output_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
 
 
 class MainWindow(QDialog):
@@ -88,8 +88,6 @@ class MainWindow(QDialog):
         if file_with_users[0] == '':
             pass
         else:
-            print(file_with_users)
-
             """Columns for check data about users"""
             df_users_columns = ['ID',
                                 'Баллы',
@@ -222,8 +220,8 @@ class MainWindow(QDialog):
                 by="Всего пользователей",
                 ascending=False)
 
-            total_stat_df.to_excel(f'{dir_for_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
+            total_stat_df.to_excel(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
+            os.startfile(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
     def last_authorization_in_app(self):
         """ Information about last authorisation users in app by years"""
@@ -281,8 +279,8 @@ class MainWindow(QDialog):
             last_authorization_in_app_df = pd.DataFrame(last_authorization_in_app_list, index, columns)
 
             last_authorization_in_app_df.to_excel(
-                f'{dir_for_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
+                f'{dir_for_output_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
+            os.startfile(f'{dir_for_output_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
 
     def authorization_during_period(self):
         """ information about the amount of authorized users for the period """
@@ -340,8 +338,8 @@ class MainWindow(QDialog):
                 end = datetime.strftime(end_date, "%d-%m-%Y")
 
                 authorization_during_period_df.to_excel(
-                    f'{dir_for_data}/authorization_during_period {start}-{end}.xlsx')
-                os.startfile(f'{dir_for_data}/authorization_during_period {start}-{end}.xlsx')
+                    f'{dir_for_output_data}/authorization_during_period {start}-{end}.xlsx')
+                os.startfile(f'{dir_for_output_data}/authorization_during_period {start}-{end}.xlsx')
 
     def points_by_users_and_countries(self):
         """ Information about points by users and countries """
@@ -374,8 +372,8 @@ class MainWindow(QDialog):
             points_by_users_and_countries_df = pd.DataFrame(points_by_users_and_countries_list, index, columns)
 
             points_by_users_and_countries_df.to_excel(
-                f"{dir_for_data}/points_by_users_and_countries {datetime.now().date()}.xlsx")
-            os.startfile(f'{dir_for_data}/points_by_users_and_countries {datetime.now().date()}.xlsx')
+                f"{dir_for_output_data}/points_by_users_and_countries {datetime.now().date()}.xlsx")
+            os.startfile(f'{dir_for_output_data}/points_by_users_and_countries {datetime.now().date()}.xlsx')
 
     def data_about_scan_users_in_current_year(self):
         """ Information about scanned users in current year """
@@ -432,8 +430,8 @@ class MainWindow(QDialog):
             table_about_scan_users_in_year_df = pd.DataFrame(table_about_scan_users_in_year_list, index, columns)
 
             table_about_scan_users_in_year_df.to_excel(
-                f'{dir_for_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
+                f'{dir_for_output_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
+            os.startfile(f'{dir_for_output_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
 
     def data_about_points(self):
         """ Information about sum of points scanned in current year """
@@ -481,8 +479,9 @@ class MainWindow(QDialog):
             index = [_ for _ in range(len(data_about_points_lst))]
             data_about_points_df = pd.DataFrame(data_about_points_lst, index, columns)
 
-            data_about_points_df.to_excel(f'{dir_for_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
+            data_about_points_df.to_excel(
+                f'{dir_for_output_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
+            os.startfile(f'{dir_for_output_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
 
     def scanned_users_by_months(self):
         """ Information about scanned users by country in each month """
@@ -549,8 +548,9 @@ class MainWindow(QDialog):
             index = [_ for _ in range(len(scanned_users_by_months_list))]
             scanned_users_by_months_df = pd.DataFrame(scanned_users_by_months_list, index, columns)
 
-            scanned_users_by_months_df.to_excel(f'{dir_for_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
+            scanned_users_by_months_df.to_excel(
+                f'{dir_for_output_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
+            os.startfile(f'{dir_for_output_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
 
     def data_about_scans_during_period(self):
         """Output information about users and scans during period"""
@@ -674,8 +674,9 @@ class MainWindow(QDialog):
         start = datetime.strftime(start_date, "%d-%m-%Y")
         end = datetime.strftime(end_date, "%d-%m-%Y")
 
-        data_about_scans_during_period_df.to_excel(f'{dir_for_data}/data_about_scans_during_period_{start}-{end}.xlsx')
-        os.startfile(f'{dir_for_data}/data_about_scans_during_period_{start}-{end}.xlsx')
+        data_about_scans_during_period_df.to_excel(
+            f'{dir_for_output_data}/data_about_scans_during_period_{start}-{end}.xlsx')
+        os.startfile(f'{dir_for_output_data}/data_about_scans_during_period_{start}-{end}.xlsx')
 
     def top_users_by_scans(self):
         """ TOP dealers / adjusters by scans"""
@@ -763,5 +764,6 @@ class MainWindow(QDialog):
                     top_users_by_scans_list_df = pd.DataFrame(top_users_by_scans_lst, index, columns)
 
                     top_users_by_scans_list_df.to_excel(
-                        f'{dir_for_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
-                    os.startfile(f'{dir_for_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
+                        f'{dir_for_output_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
+                    os.startfile(
+                        f'{dir_for_output_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
