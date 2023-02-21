@@ -9,8 +9,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     # Create main window for all other widgets.
     main_window = MainWindow()
-    main_window.windowIcon()
     # Showing the main windows
     main_window.show()
     # Start app with method exec_, which starting loop
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

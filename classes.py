@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QMessageBox, QFileDialog, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QMessageBox, QFileDialog, QInputDialog, QWidget, \
+    QVBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap
 from datetime import datetime
 import pandas as pd
@@ -18,18 +19,16 @@ except FileExistsError:
 dir_for_output_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
 
 
-class MainWindow(QDialog):
-
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        # Set size of main window
-        self.resize(620, 800)
-        # set Title for main windows
+
+        self.resize(620, 600)
         self.setWindowTitle("Данные по пользователя и сканам в приложении AXOR")
         self.setWindowIcon(QIcon('axor.ico'))
-        self.windows_label = QLabel(self)
-        window_label = QPixmap('axor_logo.png')
-        self.windows_label.setPixmap(window_label)
+
+        self.label = QLabel()
+        self.label.setPixmap(QPixmap('axor_logo.png'))
 
         self.btn_about_users = QPushButton("Загрузить базу пользователей", self)
         self.btn_about_users.move(0, 175)
@@ -78,6 +77,25 @@ class MainWindow(QDialog):
         self.btn_top_users_by_scans = QPushButton("ТОП пользователей по сканам в текущем году на данный момент", self)
         self.btn_top_users_by_scans.move(0, 495)
         self.btn_top_users_by_scans.clicked.connect(self.top_users_by_scans)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.btn_about_users)
+        layout.addWidget(self.btn_users_by_country)
+        layout.addWidget(self.btn_last_authorization_in_app)
+        layout.addWidget(self.btn_authorization_in_period)
+        layout.addWidget(self.btn_points_by_users_and_countries)
+        layout.addWidget(self.btn_about_scans)
+        layout.addWidget(self.btn_data_about_scan_users_in_current_year)
+        layout.addWidget(self.btn_data_about_points)
+        layout.addWidget(self.btn_scanned_users_by_months)
+        layout.addWidget(self.btn_data_about_scans_during_period)
+        layout.addWidget(self.btn_top_users_by_scans)
+
+        container = QWidget()
+        container.setLayout(layout)
+
+        self.setCentralWidget(container)
 
     def check_file_with_users(self):
         """Loading and check file about users and the availability necessary columns in file about users"""
