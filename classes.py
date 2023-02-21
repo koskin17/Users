@@ -6,7 +6,6 @@ from pathlib import Path
 import os
 
 
-"""Получил изменения GUI interface и изменения main"""
 df_users = pd.DataFrame
 countries = set()
 df_scans = pd.DataFrame
