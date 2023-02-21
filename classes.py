@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 import os
 
+
 df_users = pd.DataFrame
 countries = set()
 df_scans = pd.DataFrame
