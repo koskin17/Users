@@ -23,24 +23,19 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        font_for_widgets = ['pfdintextpro-thinitalic.ttf', 12, 30, False]
-
         self.resize(620, 600)
         self.setWindowTitle("Данные по пользователя и сканам в приложении AXOR")
-        self.setWindowIcon(QIcon('axor.ico'))
+        self.setWindowIcon(QIcon('Pictures/axor.ico'))
 
         self.label = QLabel()
-        self.label.setPixmap(QPixmap('axor_logo.png'))
+        self.label.setPixmap(QPixmap('Pictures/axor_logo.png'))
 
         self.btn_about_users = QPushButton("Загрузить базу пользователей", self)
-        self.btn_about_users.setFont(QFont('pfdintextpro-thinitalic.ttf', 14, 75, False))
         self.btn_about_users.move(0, 175)
+        self.btn_about_users.setFont(QFont('Font/pfdintextpro-thinitalic.ttf', 14, 50, False))
         self.btn_about_users.clicked.connect(self.check_file_with_users)
 
         self.btn_users_by_country = QPushButton("Пользователи по странам", self)
-        self.btn_users_by_country.setFont(QFont(font_for_widgets[0], font_for_widgets[1], font_for_widgets[2],
-                                                font_for_widgets[3]))
-        # TODO добавить везде шрифт
         self.btn_users_by_country.move(0, 205)
         self.btn_users_by_country.clicked.connect(self.users_by_country)
 
@@ -58,7 +53,7 @@ class MainWindow(QMainWindow):
 
         self.btn_about_scans = QPushButton("Загрузить базу сканирований", self)
         self.btn_about_scans.move(0, 345)
-        self.btn_about_scans.setFont(QFont('pfdintextpro-thinitalic.ttf', 16, 75, False))
+        self.btn_about_scans.setFont(QFont('Font/pfdintextpro-thinitalic.ttf', 14, 50, False))
         self.btn_about_scans.move(0, 175)
         self.btn_about_scans.clicked.connect(self.check_file_with_scans)
 

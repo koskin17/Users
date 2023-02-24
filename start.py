@@ -9,6 +9,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     # Create main window for all other widgets.
     main_window = MainWindow()
+    main_window.setFont(QFont('Font/pfdintextpro-thinitalic.ttf', 10, 30, False))
     # Showing the main windows
     main_window.show()
     # Start app with method exec_, which starting loop
