@@ -6,18 +6,18 @@ import pandas as pd
 from pathlib import Path
 import os
 
-
 df_users = pd.DataFrame
 countries = set()
 df_scans = pd.DataFrame
 
 try:
-    Path.mkdir(Path.home() / 'Desktop' / 'Данные по пользователям и сканам')
+    (Path.home() / 'AXOR-FS2\ProfilesV$\Konstantin.Zeykin\Desktop' / 'Данные по пользователям и сканам').mkdir(
+        parents=True, exist_ok=True)  # с этим вариантом тоже работает
+    # Path.mkdir(Path.home() / 'Desktop' / 'Данные по пользователям и сканам') # предыдущий вариант, тоже работал
 except FileExistsError:
     pass
 
 dir_for_output_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
-print(dir_for_output_data)
 
 
 class MainWindow(QMainWindow):
