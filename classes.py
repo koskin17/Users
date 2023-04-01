@@ -17,6 +17,7 @@ except FileExistsError:
     pass
 
 dir_for_output_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
+print(dir_for_output_data)
 
 
 class MainWindow(QMainWindow):
