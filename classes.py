@@ -1,23 +1,25 @@
+import pathlib
+
 from PyQt5.QtWidgets import QMainWindow, QLabel, QPushButton, QMessageBox, QFileDialog, QInputDialog, QWidget, \
     QVBoxLayout
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from datetime import datetime
 import pandas as pd
 from pathlib import Path
+import pathlib
 import os
+import subprocess
 
 df_users = pd.DataFrame
 countries = set()
 df_scans = pd.DataFrame
 
 try:
-    (Path.home() / 'AXOR-FS2\ProfilesV$\Konstantin.Zeykin\Desktop' / 'Данные по пользователям и сканам').mkdir(
-        parents=True, exist_ok=True)  # с этим вариантом тоже работает
-    # Path.mkdir(Path.home() / 'Desktop' / 'Данные по пользователям и сканам') # предыдущий вариант, тоже работал
+    Path.mkdir(pathlib.Path.cwd() / 'Данные по пользователям и сканам')
 except FileExistsError:
     pass
 
-dir_for_output_data = Path.home() / 'Desktop' / 'Данные по пользователям и сканам'
+dir_for_output_data = Path(pathlib.Path.cwd(), 'Данные по пользователям и сканам')
 
 
 class MainWindow(QMainWindow):
@@ -247,7 +249,8 @@ class MainWindow(QMainWindow):
                 ascending=False)
 
             total_stat_df.to_excel(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')
+            # os.startfile(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
 
     def last_authorization_in_app(self):
         """ Information about last authorisation users in app by years"""
