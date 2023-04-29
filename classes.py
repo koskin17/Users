@@ -249,8 +249,8 @@ class MainWindow(QMainWindow):
                 ascending=False)
 
             total_stat_df.to_excel(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
-            subprocess.Popen(f'explorer /select,{dir_for_output_data},')
-            # os.startfile(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/total_stats_about_users_for_{datetime.now().date()}.xlsx') # вариант для запуса созданного файла с данными
 
     def last_authorization_in_app(self):
         """ Information about last authorisation users in app by years"""
@@ -309,7 +309,8 @@ class MainWindow(QMainWindow):
 
             last_authorization_in_app_df.to_excel(
                 f'{dir_for_output_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_output_data}/last_authorization_in_app {datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/last_authorization_in_app {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
 
     def authorization_during_period(self):
         """ information about the amount of authorized users for the period """
@@ -368,7 +369,8 @@ class MainWindow(QMainWindow):
 
                 authorization_during_period_df.to_excel(
                     f'{dir_for_output_data}/authorization_during_period {start}-{end}.xlsx')
-                os.startfile(f'{dir_for_output_data}/authorization_during_period {start}-{end}.xlsx')
+                subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+                # os.startfile(f'{dir_for_output_data}/authorization_during_period {start}-{end}.xlsx') # вариант для запуска созданного файла с данными
 
     def points_by_users_and_countries(self):
         """ Information about points by users and countries """
@@ -402,7 +404,8 @@ class MainWindow(QMainWindow):
 
             points_by_users_and_countries_df.to_excel(
                 f"{dir_for_output_data}/points_by_users_and_countries {datetime.now().date()}.xlsx")
-            os.startfile(f'{dir_for_output_data}/points_by_users_and_countries {datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/points_by_users_and_countries {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
 
     def data_about_scan_users_in_current_year(self):
         """ Information about scanned users in current year """
@@ -460,7 +463,8 @@ class MainWindow(QMainWindow):
 
             table_about_scan_users_in_year_df.to_excel(
                 f'{dir_for_output_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_output_data}/scanned_users_in_year {datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/scanned_users_in_year {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
 
     def data_about_points(self):
         """ Information about sum of points scanned in current year """
@@ -510,7 +514,8 @@ class MainWindow(QMainWindow):
 
             data_about_points_df.to_excel(
                 f'{dir_for_output_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_output_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/all_points_of_users_by_country {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
 
     def scanned_users_by_months(self):
         """ Information about scanned users by country in each month """
@@ -579,7 +584,8 @@ class MainWindow(QMainWindow):
 
             scanned_users_by_months_df.to_excel(
                 f'{dir_for_output_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
-            os.startfile(f'{dir_for_output_data}/scanned_users_by_months {datetime.now().date()}.xlsx')
+            subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+            # os.startfile(f'{dir_for_output_data}/scanned_users_by_months {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
 
     def data_about_scans_during_period(self):
         """Output information about users and scans during period"""
@@ -703,7 +709,8 @@ class MainWindow(QMainWindow):
 
         data_about_scans_during_period_df.to_excel(
             f'{dir_for_output_data}/data_about_scans_during_period_{start}-{end}.xlsx')
-        os.startfile(f'{dir_for_output_data}/data_about_scans_during_period_{start}-{end}.xlsx')
+        subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+        # os.startfile(f'{dir_for_output_data}/data_about_scans_during_period_{start}-{end}.xlsx') # вариант для запуска созданного файла с данными
 
     def top_users_by_scans(self):
         """ TOP dealers / adjusters by scans"""
@@ -755,8 +762,8 @@ class MainWindow(QMainWindow):
 
                     top_users_by_scans_list_df.to_excel(
                         f'{dir_for_output_data}/TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
-                    os.startfile(
-                        f'{dir_for_output_data}/TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
+                    subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+                    # os.startfile(f'{dir_for_output_data}/TOP_dealers_by_scans_in_{country[0]} {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
                 elif user_type[0] == 'Монтажник':
                     data = df_scans[(df_scans['Страна'] == country[0]) &
                                     (df_scans['Сам себе'] == user_type[0])]
@@ -792,5 +799,5 @@ class MainWindow(QMainWindow):
 
                     top_users_by_scans_list_df.to_excel(
                         f'{dir_for_output_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
-                    os.startfile(
-                        f'{dir_for_output_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx')
+                    subprocess.Popen(f'explorer /select,{dir_for_output_data},')  # вариант для открытия папки с данными
+                    # os.startfile(f'{dir_for_output_data}/TOP_adjusters_by_scans_in_{country[0]} {datetime.now().date()}.xlsx') # вариант для запуска созданного файла с данными
